@@ -18,8 +18,12 @@ type StoredVersion = {
 }
 
 type SiteContentDocument = {
-  _id: string
+  _id?: string
   version?: number
+  updatedAt?: string
+  updatedBy?: string
+  status?: 'draft' | 'published'
+  [key: string]: unknown
 }
 
 async function requireAdmin(request: Request) {
@@ -71,10 +75,18 @@ export async function POST(request: Request) {
     const current = await siteContent.findOne({ _id: { $eq: CONTENT_KEY } })
     const version = (current?.version ?? 0) + 1
     const now = new Date().toISOString()
+    const restoredDocument: SiteContentDocument = {
+      ...parsed.data,
+      _id: CONTENT_KEY,
+      updatedAt: now,
+      updatedBy: admin.email,
+      version,
+      status: 'draft',
+    }
 
     await siteContent.replaceOne(
       { _id: { $eq: CONTENT_KEY } },
-      { ...parsed.data, _id: CONTENT_KEY, updatedAt: now, updatedBy: admin.email, version, status: 'draft' },
+      restoredDocument,
       { upsert: true },
     )
     await db.collection('content_versions').insertOne({ contentKey: CONTENT_KEY, version, status: 'draft', content: parsed.data, createdAt: now, createdBy: admin.email, restoredFrom: requestedVersion })
