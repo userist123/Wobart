@@ -18,20 +18,13 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email: email.trim(), password }),
-      })
+      const response = await fetch(`${API_BASE_URL}/api/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ email: email.trim(), password }) })
       const result = await response.json().catch(() => null)
       if (!response.ok) throw new Error(result?.detail || 'Autentificarea a eșuat.')
       window.location.href = result?.role === 'admin' ? '/admin' : '/dashboard'
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Autentificarea a eșuat.')
-    } finally {
-      setLoading(false)
-    }
+    } finally { setLoading(false) }
   }
 
   return (
@@ -44,7 +37,12 @@ export default function LoginPage() {
         </svg>
         <div className="relative z-10 px-16 text-center">
           <Link href="/" className="font-display text-4xl tracking-widest text-[#EEEEFC] block mb-12">WOB<span className="text-[#C8FF00]">.</span>ART</Link>
-          <div className="relative w-72 h-72 mx-auto mb-12"><div className="absolute inset-0 rounded-full border border-[rgba(200,255,0,0.15)] animate-spin" style={{ animationDuration: '20s' }} /><div className="absolute inset-8 rounded-full border border-[rgba(78,110,255,0.12)] animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }} /><div className="absolute inset-16 rounded-full border border-[rgba(200,255,0,0.2)] /><div className="absolute inset-0 flex items-center justify-center"><span className="font-display text-7xl text-[#C8FF00]/30">W</span></div></div>
+          <div className="relative w-72 h-72 mx-auto mb-12">
+            <div className="absolute inset-0 rounded-full border border-[rgba(200,255,0,0.15)] animate-spin" style={{ animationDuration: '20s' }} />
+            <div className="absolute inset-8 rounded-full border border-[rgba(78,110,255,0.12)] animate-spin" style={{ animationDuration: '15s', animationDirection: 'reverse' }} />
+            <div className="absolute inset-16 rounded-full border border-[rgba(200,255,0,0.2)]" />
+            <div className="absolute inset-0 flex items-center justify-center"><span className="font-display text-7xl text-[#C8FF00]/30">W</span></div>
+          </div>
           <p className="text-[#6B6B8A] text-sm leading-relaxed max-w-xs mx-auto">Accesează contul pentru a vedea cererile și comenzile asociate contului tău.</p>
         </div>
       </div>
