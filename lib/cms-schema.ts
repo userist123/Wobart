@@ -2,6 +2,14 @@ import { z } from 'zod'
 
 const stringArray = z.array(z.string().trim()).default([])
 
+export const reviewContentSchema = z.object({
+  name: z.string().trim(),
+  car: z.string().trim(),
+  date: z.string().trim(),
+  quote: z.string().trim(),
+  stars: z.number().int().min(1).max(5),
+})
+
 export const serviceContentSchema = z.object({
   id: z.string(), name: z.string(), slug: z.string(), eyebrow: z.string(), description: z.string(),
   benefits: stringArray, process: stringArray, materials: stringArray, imageUrl: z.string(),
@@ -28,6 +36,8 @@ export const siteContentSchema = z.object({
     statement: z.object({ eyebrow: z.string(), title: z.string(), body: z.string() }),
     trustItems: stringArray,
     processIntro: z.object({ eyebrow: z.string(), title: z.string(), body: z.string() }),
+    processSteps: stringArray,
+    reviews: z.array(reviewContentSchema),
     cta: z.object({ eyebrow: z.string(), title: z.string(), body: z.string(), buttonLabel: z.string(), buttonHref: z.string() }),
   }),
   services: z.array(serviceContentSchema),
