@@ -5,6 +5,7 @@ import './globals.css'
 import './wob-art-premium.css'
 import './wob-art-footer.css'
 import './wob-art-conversion.css'
+import './wob-art-navigation.css'
 
 const bebasNeue = Bebas_Neue({ weight: '400', subsets: ['latin'], variable: '--font-bebas-neue', display: 'swap' })
 const barlowCondensed = Barlow_Condensed({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-barlow-condensed', display: 'swap' })
