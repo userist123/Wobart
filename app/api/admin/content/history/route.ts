@@ -75,13 +75,13 @@ export async function POST(request: Request) {
     const current = await siteContent.findOne({ _id: { $eq: CONTENT_KEY } })
     const version = (current?.version ?? 0) + 1
     const now = new Date().toISOString()
-    const restoredDocument: SiteContentDocument = {
+    const restoredDocument = {
       ...parsed.data,
       _id: CONTENT_KEY,
       updatedAt: now,
       updatedBy: admin.email,
       version,
-      status: 'draft',
+      status: 'draft' as const,
     }
 
     await siteContent.replaceOne(
