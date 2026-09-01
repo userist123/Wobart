@@ -14,6 +14,7 @@ import './wob-art-type-rhythm.css'
 import './wob-art-portfolio.css'
 import './wob-art-transformation.css'
 import './wob-art-services.css'
+import './wob-art-process.css'
 
 const bebasNeue = Bebas_Neue({ weight: '400', subsets: ['latin'], variable: '--font-bebas-neue', display: 'swap' })
 const barlowCondensed = Barlow_Condensed({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-barlow-condensed', display: 'swap' })
