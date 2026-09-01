@@ -1,18 +1,18 @@
 PROJECT: WOB ART
 STATUS: IN_PROGRESS
-CURRENT_PHASE: 05
-CURRENT_TASK: REAL APPLICATION FOUNDATION + HOMEPAGE CORE
-COMPLETED_PHASES: [00-04]
-IN_PROGRESS: PHASE 05
-NEXT_PHASE: 06
-NEXT_TASK: REAL SERVICES / PORTFOLIO / ADMIN CONTENT FLOWS
-BLOCKERS: LOCAL_BUILD_AND_RUNTIME_VALIDATION_NOT_EXECUTED_IN_THIS_SESSION
-LAST_BUILD: NOT_RUN
-LAST_TEST: NOT_RUN
-LAST_VALIDATION: SOURCE_AND_ARCHITECTURE_REVIEW
-FILES_CHANGED: [next.config.mjs, .gitignore, components/sections/QuoteForm.tsx, backend/server.py]
-IMPORTANT_DECISIONS: [native_scroll_instead_of_scroll_jacking, editorial_asymmetric_portfolio, semantic_visual_tokens, mobile_first_responsive_art_direction, real_api_submission_flow, strict_build_validation]
+CURRENT_PHASE: 06
+CURRENT_TASK: REAL APPLICATION FLOWS
+COMPLETED_PHASES: [00-05]
+IN_PROGRESS: PHASE 06
+NEXT_PHASE: 07
+NEXT_TASK: CONTENT / PORTFOLIO / MEDIA MANAGEMENT
+BLOCKERS: Runtime integration must be validated in the user's environment with real environment variables and services.
+LAST_BUILD: NOT_RUN_HERE
+LAST_TEST: NOT_RUN_HERE
+LAST_VALIDATION: STATIC_REVIEW_AND_SOURCE_INTEGRATION
+FILES_CHANGED: [app/admin/page.tsx, app/login/page.tsx, app/register/page.tsx, components/sections/QuoteForm.tsx, backend/server.py]
+REAL_FLOWS_COMPLETED: [quote-request-persistence, admin-orders-view, admin-contact-requests-view, admin-order-status-update, admin-contact-status-update, real-login, real-registration]
+IMPORTANT_DECISIONS: [native_scroll_instead_of_scroll_jacking, editorial_asymmetric_portfolio, semantic_visual_tokens, mobile_first_responsive_art_direction, frontend_calls_real_api, admin_uses_database_data]
 SELECTED_SKILLS: [visual-web-engineering, design-system-foundation, core-web-vitals, wcag-aa]
-REAL_APPLICATION_REQUIREMENTS: [frontend_forms_persist_to_backend, auth_is_real, admin_is_real, business_data_remains_configurable, no_mock_success_states]
-KNOWN_PROBLEMS: [photo_storage_not_connected_to_provider, business_data_contains_claims_that_need_verification, legacy_frontend_directory_requires_separate_audit, payment_flow_requires_full_regression_review]
+KNOWN_PROBLEMS: [photo-upload-storage_not_yet_connected, password-reset-email_not_yet_connected, cookie-security_requires_production_https_config, legacy_frontend_directory_requires_separate_audit]
 LAST_UPDATED: 2026-09-01
