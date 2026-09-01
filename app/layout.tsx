@@ -18,7 +18,6 @@ import './wob-art-process.css'
 import './wob-art-reviews.css'
 import './wob-art-closing.css'
 import './wob-art-quote-polish.css'
-import './wob-art-direction.css'
 
 const bebasNeue = Bebas_Neue({ weight: '400', subsets: ['latin'], variable: '--font-bebas-neue', display: 'swap' })
 const barlowCondensed = Barlow_Condensed({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-barlow-condensed', display: 'swap' })
@@ -32,7 +31,7 @@ export const metadata: Metadata = {
   openGraph: { title: 'WOB ART — Car Wrapping, PPF & Detailing', description: 'Transformare și protecție auto în București.', type: 'website' },
 }
 
-export const viewport: Viewport = { themeColor: '#080808' }
+export const viewport: Viewport = { themeColor: '#0A0A0A' }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
