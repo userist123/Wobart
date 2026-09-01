@@ -4,7 +4,7 @@
 .hero-media{position:absolute;inset:-2%;overflow:hidden;transform:translateZ(0)}
 .hero-media::before{content:'';position:absolute;inset:0;z-index:2;background:linear-gradient(90deg,rgba(4,4,4,.97),rgba(4,4,4,.78) 22%,rgba(4,4,4,.3) 48%,rgba(4,4,4,.06) 76%),linear-gradient(180deg,rgba(0,0,0,.18),transparent 42%,rgba(0,0,0,.82));pointer-events:none}
 .hero-media::after{content:'';position:absolute;inset:0;z-index:3;background:radial-gradient(circle at 73% 43%,rgba(232,255,0,.065),transparent 22%),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.2));pointer-events:none}
-.hero-image,.hero-video{width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.82) contrast(1.09);will-change:transform;transition:filter .7s ease}
+.hero-image,.hero-video{width:100%;height:100%;object-fit:cover;object-position:center;filter:saturate(.82) contrast(1.09);will-change:transform;transition:filter .7s ease;animation:none}
 .hero-shell:hover .hero-image,.hero-shell:hover .hero-video{filter:saturate(.92) contrast(1.12)}
 .hero-video{display:block;position:absolute;inset:0}
 .hero-vignette{position:absolute;inset:0;z-index:4;background:radial-gradient(circle at 75% 46%,transparent 0,rgba(0,0,0,.03) 28%,rgba(0,0,0,.24) 100%);pointer-events:none}
