@@ -1,9 +1,10 @@
-import { ArrowUpRight } from 'lucide-react'
-import { defaultSiteContent } from '@/lib/site-content'
-import { getPublishedSiteContent } from '@/lib/site-content-server'
+'use client'
 
-export async function Footer() {
-  const content = await getPublishedSiteContent().catch(() => defaultSiteContent)
+import { ArrowUpRight } from 'lucide-react'
+import { useSiteContent } from '@/hooks/useSiteContent'
+
+export function Footer() {
+  const { content } = useSiteContent()
   const contact = content.global.contact
   const links = [
     ['Servicii', '#services'],
