@@ -28,8 +28,14 @@ export function HeroSection() {
       .catch(() => undefined)
   }, [])
 
+  const imageSrc = hero.imageUrl || fallback.imageUrl
+  const isRemoteImage = /^https?:\/\//i.test(imageSrc)
+
   return <section className="hero-shell">
-    <div className="hero-media" aria-hidden="true"><Image src={hero.imageUrl || fallback.imageUrl} alt="" fill priority sizes="100vw" className="object-cover hero-image" /><div className="hero-vignette" /><div className="hero-scanline" /></div>
+    <div className="hero-media" aria-hidden="true">
+      <Image src={imageSrc} alt="" fill priority sizes="100vw" unoptimized={isRemoteImage} className="object-cover hero-image" />
+      <div className="hero-vignette" /><div className="hero-scanline" />
+    </div>
     <div className="section-shell hero-inner"><div className="hero-copy"><p ref={kickerRef} className="reveal eyebrow hero-kicker">{hero.eyebrow}</p><h1 ref={titleRef} className="reveal hero-title">{hero.title.split('\n').map((line) => <span key={line} className="block">{line}</span>)}</h1><div ref={copyRef} className="reveal hero-copy-row"><p className="body-copy hero-description">{hero.description}</p><div className="hero-actions"><MagneticButton variant="accent" size="lg" href={hero.primaryCtaHref}>{hero.primaryCtaLabel}</MagneticButton><a className="text-link" href={hero.secondaryCtaHref}>{hero.secondaryCtaLabel} <ArrowUpRight size={14} /></a></div></div></div><div ref={metaRef} className="reveal hero-meta"><div className="hero-meta-block"><span>Locație</span><strong>{identity.city || 'București'}</strong></div><div className="hero-meta-block"><span>Brand</span><strong>{identity.brandName}</strong></div><div className="hero-meta-block hero-meta-last"><span>Scroll pentru</span><a href="#services">servicii <ArrowDownRight size={13} /></a></div></div></div>
     <div className="hero-index" aria-hidden="true">01</div><div className="hero-side-label" aria-hidden="true">PRECISION / MATERIAL / FINISH</div>
   </section>
