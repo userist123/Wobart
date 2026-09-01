@@ -4,13 +4,12 @@ import { Star } from 'lucide-react'
 import { useReveal } from '@/hooks/useReveal'
 import { useSiteContent } from '@/hooks/useSiteContent'
 import { REVIEWS } from '@/lib/constants'
-
-type Review = { name: string; car: string; date: string; quote: string; stars: number }
+import type { ReviewContent } from '@/lib/site-content'
 
 export function ReviewsSection() {
   const ref = useReveal<HTMLDivElement>()
   const { content } = useSiteContent()
-  const reviews: Review[] = ((content as SiteContentWithReviews | null)?.reviews ?? REVIEWS) as Review[]
+  const reviews: ReviewContent[] = content.home.reviews.length ? content.home.reviews : REVIEWS
 
   return (
     <section className="section section-carbon">
@@ -32,5 +31,3 @@ export function ReviewsSection() {
     </section>
   )
 }
-
-type SiteContentWithReviews = { reviews?: Review[] }
