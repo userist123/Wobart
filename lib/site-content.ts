@@ -36,6 +36,14 @@ export type PortfolioContent = {
   sortOrder: number
 }
 
+export type TransformationContent = {
+  before: string
+  after: string
+  label: string
+  active: boolean
+  sortOrder: number
+}
+
 export type SiteContent = {
   global: {
     brandName: string
@@ -64,6 +72,7 @@ export type SiteContent = {
     trustItems: string[]
     processIntro: { eyebrow: string; title: string; body: string }
     processSteps: string[]
+    transformations: TransformationContent[]
     reviews: ReviewContent[]
     cta: { eyebrow: string; title: string; body: string; buttonLabel: string; buttonHref: string }
   }
@@ -81,6 +90,11 @@ export const defaultSiteContent: SiteContent = {
     trustItems: [],
     processIntro: { eyebrow: '', title: '', body: '' },
     processSteps: [],
+    transformations: [
+      { before: '/images/ba-before-1.jpg', after: '/images/ba-after-1.jpg', label: 'BMW Seria 5 — Negru Mat', active: true, sortOrder: 0 },
+      { before: '/images/ba-before-2.jpg', after: '/images/ba-after-2.jpg', label: 'Audi A4 — Satin Midnight Blue', active: true, sortOrder: 1 },
+      { before: '/images/ba-before-3.jpg', after: '/images/ba-after-3.jpg', label: 'Porsche Cayenne — Gloss Auriu', active: true, sortOrder: 2 },
+    ],
     reviews: [],
     cta: { eyebrow: '', title: '', body: '', buttonLabel: 'Solicită ofertă', buttonHref: '#quote' },
   },
