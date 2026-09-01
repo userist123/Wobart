@@ -30,14 +30,13 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'WOB ART — Premium Car Wrapping, PPF & Detailing | București',
+  title: 'WOB ART — Car Wrapping, PPF & Detailing | București',
   description:
-    'Atelier premium de car wrapping, PPF și detailing în București. Transformăm vehiculele cu materiale 3M, Avery Dennison și KPMF. 847+ vehicule transformate. Garanție 5 ani.',
-  keywords:
-    'car wrapping, PPF, detailing, folie auto, protectie vopsea, wrap masina, WOB ART, Bucuresti',
+    'Atelier de car wrapping, PPF și detailing în București. Descoperă servicii de transformare și protecție pentru vehiculul tău, cu consultanță pentru alegerea finisajului potrivit.',
+  keywords: 'car wrapping, PPF, detailing, folie auto, protecție vopsea, wrap mașină, WOB ART, București',
   openGraph: {
-    title: 'WOB ART — Premium Car Wrapping',
-    description: 'Your car. Reimagined. Premium wrapping studio in București.',
+    title: 'WOB ART — Car Wrapping, PPF & Detailing',
+    description: 'Transformare și protecție auto în București.',
     type: 'website',
   },
 }
