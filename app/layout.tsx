@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Bebas_Neue, Barlow_Condensed, DM_Sans, JetBrains_Mono } from 'next/font/google'
 import { LenisProvider } from '@/components/LenisProvider'
 import './globals.css'
+import './wob-art-premium.css'
 
 const bebasNeue = Bebas_Neue({
   weight: '400',
