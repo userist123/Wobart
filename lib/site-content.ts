@@ -1,3 +1,11 @@
+export type ReviewContent = {
+  name: string
+  car: string
+  date: string
+  quote: string
+  stars: number
+}
+
 export type ServiceContent = {
   id: string
   name: string
@@ -55,6 +63,8 @@ export type SiteContent = {
     statement: { eyebrow: string; title: string; body: string }
     trustItems: string[]
     processIntro: { eyebrow: string; title: string; body: string }
+    processSteps: string[]
+    reviews: ReviewContent[]
     cta: { eyebrow: string; title: string; body: string; buttonLabel: string; buttonHref: string }
   }
   services: ServiceContent[]
@@ -64,20 +74,18 @@ export type SiteContent = {
 }
 
 export const defaultSiteContent: SiteContent = {
-  global: {
-    brandName: 'WOB ART', tagline: '', phone: '', email: '', address: '', city: '', instagramUrl: '', facebookUrl: '', openingHours: ''
-  },
+  global: { brandName: 'WOB ART', tagline: '', phone: '', email: '', address: '', city: '', instagramUrl: '', facebookUrl: '', openingHours: '' },
   home: {
-    hero: {
-      eyebrow: '', title: 'MAȘINA TA.\nREINVENTATĂ.', description: '', primaryCtaLabel: 'Solicită ofertă', primaryCtaHref: '#quote', secondaryCtaLabel: 'Vezi transformările', secondaryCtaHref: '#portfolio', imageUrl: '/images/hero-car.jpg', videoUrl: ''
-    },
+    hero: { eyebrow: '', title: 'MAȘINA TA.\nREINVENTATĂ.', description: '', primaryCtaLabel: 'Solicită ofertă', primaryCtaHref: '#quote', secondaryCtaLabel: 'Vezi transformările', secondaryCtaHref: '#portfolio', imageUrl: '/images/hero-car.jpg', videoUrl: '' },
     statement: { eyebrow: '', title: '', body: '' },
     trustItems: [],
     processIntro: { eyebrow: '', title: '', body: '' },
-    cta: { eyebrow: '', title: '', body: '', buttonLabel: 'Solicită ofertă', buttonHref: '#quote' }
+    processSteps: [],
+    reviews: [],
+    cta: { eyebrow: '', title: '', body: '', buttonLabel: 'Solicită ofertă', buttonHref: '#quote' },
   },
   services: [],
   portfolio: [],
   seo: { title: '', description: '', canonicalUrl: '', ogImageUrl: '', robotsIndex: true },
-  theme: { accent: '#E8FF00', background: '#0A0A0A', surface: '#111111', text: '#F0F0F0', motionLevel: 'restrained' }
+  theme: { accent: '#E8FF00', background: '#0A0A0A', surface: '#111111', text: '#F0F0F0', motionLevel: 'restrained' },
 }
