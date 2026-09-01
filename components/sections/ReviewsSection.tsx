@@ -9,7 +9,7 @@ import type { ReviewContent } from '@/lib/site-content'
 export function ReviewsSection() {
   const ref = useReveal<HTMLDivElement>()
   const { content } = useSiteContent()
-  const reviews: ReviewContent[] = content.home.reviews.length ? content.home.reviews : REVIEWS
+  const reviews: ReviewContent[] = content.home.reviews.length ? content.home.reviews : [...REVIEWS]
 
   return (
     <section className="section section-carbon">
