@@ -1,0 +1,30 @@
+/* WOB ART — process / atelier protocol */
+
+#process { position: relative; overflow: hidden; }
+#process::before { content: 'PROTOCOL'; position: absolute; right: -2%; top: 5%; color: rgba(255,255,255,.018); font: 400 clamp(150px,28vw,430px)/.72 var(--font-bebas-neue,sans-serif); pointer-events: none; }
+#process .section-heading, #process .process-list { position: relative; z-index: 2; }
+#process .heading-note { max-width: 34ch; color: rgba(240,240,240,.42); }
+.process-list { margin-top: 62px; border-top: 1px solid rgba(255,255,255,.1); }
+.process-row { position: relative; display: grid; grid-template-columns: 90px minmax(0,1fr) 30px; gap: 28px; align-items: start; min-height: 170px; padding: 30px 14px 30px 0; border-bottom: 1px solid rgba(255,255,255,.08); transition: padding .5s var(--wob-ease), background .4s ease; }
+.process-row::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(232,255,0,.055), transparent 48%); opacity: 0; transition: opacity .35s ease; }
+.process-row:hover, .process-row:focus-within { padding-left: 18px; background: rgba(255,255,255,.012); }
+.process-row:hover::before, .process-row:focus-within::before { opacity: 1; }
+.process-number { color: var(--wob-accent); font: 500 10px/1 var(--font-jetbrains-mono,monospace); letter-spacing: .12em; }
+.process-row h3 { margin: 0 0 13px; font: 400 clamp(38px,5vw,74px)/.78 var(--font-bebas-neue,sans-serif); letter-spacing: .01em; }
+.process-row p { max-width: 55ch; color: rgba(240,240,240,.5); }
+.process-row > svg { margin-top: 4px; justify-self: end; color: rgba(255,255,255,.2); transition: transform .45s var(--wob-ease), color .25s ease; }
+.process-row:hover > svg { color: var(--wob-accent); transform: translate(5px,5px); }
+.process-row:last-child { border-bottom-color: rgba(232,255,0,.2); }
+
+@media (max-width: 767px) {
+  #process::before { right: -17%; top: 8%; font-size: 145px; }
+  .process-list { margin-top: 40px; }
+  .process-row { grid-template-columns: 36px minmax(0,1fr) 20px; gap: 10px; min-height: 145px; padding: 24px 0; }
+  .process-row:hover, .process-row:focus-within { padding-left: 7px; }
+  .process-row h3 { margin-bottom: 10px; font-size: 43px; }
+  .process-row p { font-size: 12px; line-height: 1.55; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .process-row, .process-row::before, .process-row > svg { transition: none; }
+}
