@@ -3,6 +3,7 @@ import { Bebas_Neue, Barlow_Condensed, DM_Sans, JetBrains_Mono } from 'next/font
 import { LenisProvider } from '@/components/LenisProvider'
 import './globals.css'
 import './wob-art-premium.css'
+import './wob-art-hero.css'
 import './wob-art-footer.css'
 import './wob-art-conversion.css'
 import './wob-art-navigation.css'
