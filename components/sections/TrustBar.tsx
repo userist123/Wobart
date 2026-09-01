@@ -44,15 +44,14 @@ export function TrustBar() {
       <div className="max-w-[1400px] mx-auto px-5 sm:px-8 md:px-12">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x md:divide-white/[0.07]">
           {items.map((item, index) => {
-            const match = item.value.match(/^(\d+)(.*)$/)
+            const match = item.match(/^(\d+)(.*)$/)
             const target = match ? Number(match[1]) : null
-            const suffix = match?.[2] ?? ''
+            const suffix = match?.[2]?.trim() ?? ''
             return (
-              <div key={`${item.label}-${index}`} className="flex flex-col items-center text-center px-4 md:px-8 py-4">
+              <div key={`${item}-${index}`} className="flex flex-col items-center text-center px-4 md:px-8 py-4">
                 <div className="font-display text-[clamp(44px,6vw,72px)] leading-none text-[#E8FF00]">
-                  {target !== null ? <CountUp target={target} suffix={suffix} /> : item.value}
+                  {target !== null ? <CountUp target={target} suffix={suffix} /> : item}
                 </div>
-                <p className="font-sans text-[11px] tracking-[0.25em] text-[#555555] uppercase mt-2">{item.label}</p>
               </div>
             )
           })}
