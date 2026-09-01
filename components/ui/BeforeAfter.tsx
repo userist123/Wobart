@@ -25,7 +25,7 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full aspect-[560/380] overflow-hidden select-none cursor-ew-resize border border-white/[0.08]"
+      className="before-after-card relative w-full aspect-[560/380] overflow-hidden select-none cursor-ew-resize"
       data-cursor="DRAG"
       role="slider"
       aria-label={label || 'Înainte și după'}
@@ -51,20 +51,24 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
         dragging.current = false
         event.currentTarget.releasePointerCapture(event.pointerId)
       }}
+      onPointerCancel={() => { dragging.current = false }}
       onClick={event => update(event.clientX)}
     >
-      <Image src={after} alt={label ? `${label} — după` : 'După'} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
-      <div className="absolute inset-0 overflow-hidden" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
-        <Image src={before} alt={label ? `${label} — înainte` : 'Înainte'} fill className="object-cover" sizes="(max-width: 768px) 100vw, 33vw" />
+      <Image src={after} alt={label ? `${label} — după` : 'După'} fill className="object-cover before-after-image" sizes="(max-width: 768px) 100vw, 33vw" />
+      <div className="absolute inset-0 overflow-hidden before-after-before" style={{ clipPath: `inset(0 ${100 - pct}% 0 0)` }}>
+        <Image src={before} alt={label ? `${label} — înainte` : 'Înainte'} fill className="object-cover before-after-image" sizes="(max-width: 768px) 100vw, 33vw" />
       </div>
-      <div className="absolute top-0 bottom-0 w-px bg-[#E8FF00] pointer-events-none" style={{ left: `${pct}%` }}>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-9 border border-[#E8FF00] bg-[#0A0A0A] grid place-items-center text-[#E8FF00]">
-          <span className="text-[10px] font-mono" aria-hidden="true">↔</span>
+      <div className="before-after-divider absolute top-0 bottom-0 w-px pointer-events-none" style={{ left: `${pct}%` }}>
+        <div className="before-after-handle absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+          <span aria-hidden="true">↔</span>
         </div>
       </div>
-      <span className="absolute top-3 left-3 text-[9px] font-label tracking-[.18em] text-white/70 uppercase bg-black/45 border border-white/10 px-2 py-1">Before</span>
-      <span className="absolute top-3 right-3 text-[9px] font-label tracking-[.18em] text-[#E8FF00] uppercase bg-black/45 border border-white/10 px-2 py-1">After</span>
-      {label && <span className="absolute left-3 right-3 bottom-3 text-[10px] font-label tracking-[.12em] text-white/70 uppercase">{label}</span>}
+      <div className="before-after-corner before-after-corner-tl" aria-hidden="true" />
+      <div className="before-after-corner before-after-corner-br" aria-hidden="true" />
+      <span className="before-after-label before-after-label-before">Before</span>
+      <span className="before-after-label before-after-label-after">After</span>
+      {label && <span className="before-after-caption">{label}</span>}
+      <span className="before-after-hint" aria-hidden="true">DRAG</span>
     </div>
   )
 }
