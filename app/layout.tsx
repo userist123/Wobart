@@ -17,6 +17,7 @@ import './wob-art-services.css'
 import './wob-art-process.css'
 import './wob-art-reviews.css'
 import './wob-art-closing.css'
+import './wob-art-quote-polish.css'
 
 const bebasNeue = Bebas_Neue({ weight: '400', subsets: ['latin'], variable: '--font-bebas-neue', display: 'swap' })
 const barlowCondensed = Barlow_Condensed({ weight: ['400', '600', '700'], subsets: ['latin'], variable: '--font-barlow-condensed', display: 'swap' })
