@@ -10,7 +10,8 @@ export function useMagneticButton(strength = 0.3) {
     if (window.matchMedia('(pointer: coarse)').matches) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
-    const onMove = (e: MouseEvent) => {
+    const onMove = (event: Event) => {
+      const e = event as MouseEvent
       const rect = el.getBoundingClientRect()
       const cx = rect.left + rect.width / 2
       const cy = rect.top + rect.height / 2
