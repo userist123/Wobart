@@ -62,7 +62,7 @@ export async function POST(request: Request) {
     const parsed = siteContentSchema.safeParse(source.content)
     if (!parsed.success) return NextResponse.json({ error: 'Stored version is invalid', issues: parsed.error.flatten() }, { status: 409 })
 
-    const current = await db.collection<{ version?: number }>('site_content').findOne({ _id: CONTENT_KEY })
+    const current = await db.collection<{ _id: string; version?: number }>('site_content').findOne({ _id: CONTENT_KEY })
     const version = (current?.version ?? 0) + 1
     const now = new Date().toISOString()
 
