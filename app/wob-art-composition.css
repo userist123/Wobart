@@ -1,0 +1,60 @@
+/* WOB ART — final composition pass
+   Unifies section rhythm, grid language and responsive art direction. */
+:root { --wob-composition-ease: cubic-bezier(.16,1,.3,1); }
+
+.section { scroll-margin-top: 82px; }
+.section-shell { position: relative; }
+.section-heading { position: relative; }
+.section-heading::after { content: ''; position: absolute; left: 0; right: 0; bottom: -28px; height: 1px; background: linear-gradient(90deg, var(--wob-line), rgba(232,255,0,.16) 42%, transparent 78%); opacity: .7; }
+.section-cta-row { position: relative; margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--wob-line-soft); }
+.section-cta-row::before { content: ''; position: absolute; top: -1px; left: 0; width: 46px; height: 1px; background: var(--wob-accent); }
+
+[aria-label="WOB ART în cifre"] { position: relative; }
+[aria-label="WOB ART în cifre"]::before, [aria-label="WOB ART în cifre"]::after { content: ''; position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,.035); pointer-events: none; }
+[aria-label="WOB ART în cifre"]::before { left: max(20px, calc((100vw - var(--wob-max)) / 2)); }
+[aria-label="WOB ART în cifre"]::after { right: max(20px, calc((100vw - var(--wob-max)) / 2)); }
+
+.services-section, .brand-statement-section { isolation: isolate; }
+.services-section::before, .brand-statement-section::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .55; background: linear-gradient(90deg, transparent calc(50% - .5px), rgba(255,255,255,.025) 50%, transparent calc(50% + .5px)); }
+.portfolio-card, .before-after-card, .service-stage { will-change: transform; }
+
+@media (max-width: 1023px) {
+  .section-heading-split { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .heading-note { justify-self: start; max-width: 620px; }
+  .brand-statement-grid { min-height: 0; }
+  .brand-statement-aside { min-height: 180px; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.07); }
+  .brand-statement-mark { display: none; }
+  .process-row { grid-template-columns: 64px minmax(0,1fr) 24px; gap: 20px; }
+}
+
+@media (max-width: 767px) {
+  .section { scroll-margin-top: 72px; padding-block: 76px; }
+  .section-shell { width: min(100% - 32px, var(--wob-max)); }
+  .section-heading { margin-bottom: 46px; }
+  .section-heading::after { bottom: -22px; }
+  .section-title { font-size: clamp(50px, 15vw, 76px); }
+  .body-copy { font-size: 14px; line-height: 1.7; }
+  .hero-inner { width: calc(100% - 32px); padding-top: 120px; padding-bottom: 48px; }
+  .hero-title { font-size: clamp(66px, 20vw, 112px); line-height: .8; }
+  .hero-title span:last-child { margin-left: 0; }
+  .hero-description { font-size: 14px; }
+  .hero-meta { display: none; }
+  .brand-statement-aside { min-height: 150px; padding-block: 24px; }
+  .brand-statement-lede { font-size: clamp(40px, 13vw, 62px); }
+  .service-row { min-height: 82px; }
+  .service-row:hover, .service-row.is-active { padding-left: 6px; }
+  .service-stage::after { inset: 10px; }
+  .before-after-hint { opacity: 1; transform: none; }
+  .before-after-card:hover { transform: none; }
+  .portfolio-card:hover, .portfolio-card:focus-visible { transform: none; }
+  .portfolio-card::after { inset: 8px; }
+  .portfolio-card:hover::after, .portfolio-card:focus-visible::after { inset: 8px; }
+  .process-row { grid-template-columns: 42px minmax(0,1fr); gap: 12px; padding-block: 28px; }
+  .process-row > :last-child { display: none; }
+  .section-cta-row { align-items: flex-start; flex-direction: column; gap: 18px; }
+  [aria-label="WOB ART în cifre"]::before, [aria-label="WOB ART în cifre"]::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-heading::after, .section-cta-row::before { transition: none; }
+}
