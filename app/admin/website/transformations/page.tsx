@@ -86,28 +86,28 @@ export default function TransformationsStudioPage() {
       </div>
 
       <div className="space-y-4">
-        {items.map((item, index) => <article key={item.id} className="rounded-2xl border border-white/10 bg-[#0D0F17] p-5 md:p-6">
+        {items.map((item, index) => <article key={`${item.label}-${index}`} className="rounded-2xl border border-white/10 bg-[#0D0F17] p-5 md:p-6">
           <div className="mb-5 flex items-center gap-3">
             <span className="font-mono text-xs text-white/30">#{index + 1}</span>
-            <input value={item.label} onChange={e => update(items.map(x => x.id === item.id ? { ...x, label: e.target.value } : x))} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[.03] px-3 py-2.5 text-sm outline-none focus:border-[#E8FF00]/50" aria-label="Etichetă transformare" />
-            <button onClick={() => update(items.filter(x => x.id !== item.id))} className="rounded-lg p-2 text-white/30 hover:text-red-300" aria-label="Șterge transformarea"><Trash2 size={16} /></button>
+            <input value={item.label} onChange={e => update(items.map((x, i) => i === index ? { ...x, label: e.target.value } : x))} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[.03] px-3 py-2.5 text-sm outline-none focus:border-[#E8FF00]/50" aria-label="Etichetă transformare" />
+            <button onClick={() => update(items.filter((_, i) => i !== index))} className="rounded-lg p-2 text-white/30 hover:text-red-300" aria-label="Șterge transformarea"><Trash2 size={16} /></button>
           </div>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="space-y-2"><span className="text-[10px] uppercase tracking-[.22em] text-white/35">Before image URL</span><input value={item.before} onChange={e => update(items.map(x => x.id === item.id ? { ...x, before: e.target.value } : x))} className="w-full rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm outline-none focus:border-[#E8FF00]/50" /></label>
-            <label className="space-y-2"><span className="text-[10px] uppercase tracking-[.22em] text-white/35">After image URL</span><input value={item.after} onChange={e => update(items.map(x => x.id === item.id ? { ...x, after: e.target.value } : x))} className="w-full rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm outline-none focus:border-[#E8FF00]/50" /></label>
+            <label className="space-y-2"><span className="text-[10px] uppercase tracking-[.22em] text-white/35">Before image URL</span><input value={item.before} onChange={e => update(items.map((x, i) => i === index ? { ...x, before: e.target.value } : x))} className="w-full rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm outline-none focus:border-[#E8FF00]/50" /></label>
+            <label className="space-y-2"><span className="text-[10px] uppercase tracking-[.22em] text-white/35">After image URL</span><input value={item.after} onChange={e => update(items.map((x, i) => i === index ? { ...x, after: e.target.value } : x))} className="w-full rounded-xl border border-white/10 bg-white/[.03] p-3 text-sm outline-none focus:border-[#E8FF00]/50" /></label>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-[1fr_auto]">
             <div className="grid grid-cols-2 gap-3">
               <div className="overflow-hidden rounded-xl border border-white/8 bg-black"><img src={item.before} alt={`Before: ${item.label}`} className="aspect-video h-full w-full object-cover" loading="lazy" /></div>
               <div className="overflow-hidden rounded-xl border border-white/8 bg-black"><img src={item.after} alt={`After: ${item.label}`} className="aspect-video h-full w-full object-cover" loading="lazy" /></div>
             </div>
-            <label className="flex items-center gap-2 self-start rounded-xl border border-white/10 px-3 py-2 text-xs text-white/50"><input type="checkbox" checked={item.active} onChange={e => update(items.map(x => x.id === item.id ? { ...x, active: e.target.checked } : x))} /> Activ
+            <label className="flex items-center gap-2 self-start rounded-xl border border-white/10 px-3 py-2 text-xs text-white/50"><input type="checkbox" checked={item.active} onChange={e => update(items.map((x, i) => i === index ? { ...x, active: e.target.checked } : x))} /> Activ
             </label>
           </div>
         </article>)}
       </div>
 
-      <button onClick={() => update([...items, { id: `transformation-${Date.now()}`, before: '', after: '', label: 'Transformare nouă', active: true, sortOrder: items.length }])} className="mt-5 flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-xs text-white/60 hover:border-[#E8FF00]/30 hover:text-[#E8FF00]">
+      <button onClick={() => update([...items, { before: '', after: '', label: 'Transformare nouă', active: true, sortOrder: items.length }])} className="mt-5 flex items-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-xs text-white/60 hover:border-[#E8FF00]/30 hover:text-[#E8FF00]">
         <Plus size={14} /> Adaugă transformare
       </button>
     </div>
