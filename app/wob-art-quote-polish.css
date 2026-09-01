@@ -1,0 +1,25 @@
+/* WOB ART — quote form final polish */
+
+.quote-section-premium .section-shell { position: relative; }
+.quote-form-panel { position: relative; overflow: hidden; }
+.quote-form-panel::before { content: 'REQUEST / 01'; position: absolute; right: 18px; top: 18px; color: rgba(255,255,255,.12); font: 500 7px/1 var(--font-jetbrains-mono,monospace); letter-spacing: .16em; pointer-events: none; }
+.quote-field:focus-within label, .quote-upload:focus-within label { color: rgba(232,255,0,.72); }
+.quote-choice:focus-visible, .choice:focus-visible, .finish-choice:focus-visible { outline: 1px solid var(--wob-accent); outline-offset: 2px; }
+.quote-upload { transition: border-color .3s ease, background .3s ease; }
+.quote-upload:hover { border-color: rgba(232,255,0,.25); background: rgba(232,255,0,.015); }
+.quote-submit-row .magnetic-button { position: relative; overflow: hidden; }
+.quote-submit-row .magnetic-button::after { content: ''; position: absolute; left: 0; bottom: 0; width: 100%; height: 2px; background: rgba(0,0,0,.35); transform: scaleX(0); transform-origin: left; transition: transform .45s var(--wob-ease); }
+.quote-submit-row .magnetic-button:hover::after, .quote-submit-row .magnetic-button:focus-visible::after { transform: scaleX(1); }
+.summary-price strong { text-wrap: balance; }
+.estimator-controls select:focus-visible { border-bottom-color: var(--wob-accent); }
+
+@media (max-width: 767px) {
+  .quote-form-panel::before { display: none; }
+  .quote-form-panel form { padding: 20px 17px 24px; }
+  .quote-form-header { padding-right: 0; }
+  .quote-field input, .quote-field textarea, .estimator-controls select { font-size: 16px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-upload, .quote-submit-row .magnetic-button::after { transition: none; }
+}
