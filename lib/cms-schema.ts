@@ -22,6 +22,14 @@ export const portfolioContentSchema = z.object({
   gallery: stringArray, featured: z.boolean(), active: z.boolean(), sortOrder: z.number().int(),
 })
 
+export const transformationContentSchema = z.object({
+  before: z.string().trim(),
+  after: z.string().trim(),
+  label: z.string().trim(),
+  active: z.boolean(),
+  sortOrder: z.number().int(),
+})
+
 export const siteContentSchema = z.object({
   global: z.object({
     brandName: z.string(), tagline: z.string(), phone: z.string(), email: z.string(), address: z.string(),
@@ -37,6 +45,7 @@ export const siteContentSchema = z.object({
     trustItems: stringArray,
     processIntro: z.object({ eyebrow: z.string(), title: z.string(), body: z.string() }),
     processSteps: stringArray,
+    transformations: z.array(transformationContentSchema).default([]),
     reviews: z.array(reviewContentSchema),
     cta: z.object({ eyebrow: z.string(), title: z.string(), body: z.string(), buttonLabel: z.string(), buttonHref: z.string() }),
   }),
