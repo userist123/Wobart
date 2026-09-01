@@ -8,7 +8,7 @@ export function ProcessSection() {
   const ref = useReveal<HTMLDivElement>()
   const { content } = useSiteContent()
   const intro = content.home.processIntro
-  const steps = content.services[0]?.process?.length ? content.services[0].process : [
+  const steps = content.home.processSteps.length ? content.home.processSteps : [
     'Discutăm mașina, utilizarea și direcția vizuală înainte de montaj.',
     'Primești o propunere clară după evaluarea vehiculului.',
     'Pregătire, montaj și control de calitate înainte de predare.',
