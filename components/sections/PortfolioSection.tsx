@@ -1,8 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowUpRight, X } from 'lucide-react'
+import Image from 'next/image'
 import { PORTFOLIO } from '@/lib/constants'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { useReveal } from '@/hooks/useReveal'
@@ -10,8 +10,21 @@ import type { PortfolioContent } from '@/lib/site-content'
 
 type PortfolioItem = PortfolioContent | { id: string; title: string; vehicle: string; service: string; finish: string; material: string; description: string; coverUrl: string; gallery: string[] }
 
+const FILTERS = ['Toate', 'Wrap', 'PPF', 'Accente'] as const
+
+type Filter = typeof FILTERS[number]
+
+function matchesFilter(item: PortfolioItem, filter: Filter) {
+  if (filter === 'Toate') return true
+  const value = `${item.service} ${item.finish} ${item.material}`.toLowerCase()
+  if (filter === 'PPF') return value.includes('ppf')
+  if (filter === 'Accente') return value.includes('crom') || value.includes('accent') || value.includes('interior')
+  return value.includes('wrap')
+}
+
 export function PortfolioSection() {
   const [expanded, setExpanded] = useState<number | null>(null)
+  const [filter, setFilter] = useState<Filter>('Toate')
   const [cmsItems, setCmsItems] = useState<PortfolioContent[]>([])
   const headRef = useReveal<HTMLDivElement>()
 
@@ -22,16 +35,30 @@ export function PortfolioSection() {
       .catch(() => undefined)
   }, [])
 
-  const items: PortfolioItem[] = cmsItems.length ? cmsItems : PORTFOLIO.map((item, index) => ({ id: String(item.id ?? index), title: `${item.make} ${item.model}`, vehicle: `${item.make} ${item.model}`, service: item.wrap, finish: item.wrap, material: '—', description: '', coverUrl: item.img, gallery: [] }))
-  const item = expanded !== null ? items[expanded] : null
+  const items: PortfolioItem[] = useMemo(() => cmsItems.length ? cmsItems : PORTFOLIO.map((item, index) => ({ id: String(item.id ?? index), title: `${item.make} ${item.model}`, vehicle: `${item.make} ${item.model}`, service: item.badge, finish: item.wrap, material: '—', description: '', coverUrl: item.img, gallery: [] })), [cmsItems])
+  const visibleItems = useMemo(() => items.filter((item) => matchesFilter(item, filter)), [items, filter])
+  const item = expanded !== null ? visibleItems[expanded] : null
   const expandedImageSrc = item?.coverUrl || '/images/hero-car.jpg'
+
+  useEffect(() => {
+    if (expanded !== null && expanded >= visibleItems.length) setExpanded(null)
+  }, [expanded, visibleItems.length])
 
   return (
     <section id="portfolio" className="section section-obsidian">
       <div className="section-shell">
-        <div ref={headRef} className="reveal section-heading section-heading-split"><div><p className="eyebrow">04 / PORTOFOLIU</p><h2 className="section-title">MAȘINI CU<br /><span>PREZENȚĂ.</span></h2></div><p className="body-copy heading-note">Portofoliul este administrabil din Website Studio. Publicarea se face prin CMS, fără recompilarea componentelor de conținut.</p></div>
-        <div className="portfolio-grid">{items.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <button key={entry.id} onClick={() => setExpanded(index)} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW"><Image src={imageSrc} alt={entry.title || entry.vehicle} fill sizes="(max-width: 768px) 100vw, 50vw" unoptimized={/^https?:\/\//i.test(imageSrc)} className="object-cover" /><div className="portfolio-overlay" /><div className="portfolio-meta"><span>{entry.service}</span><strong>{entry.title}</strong><small>{entry.finish || entry.material}</small></div><ArrowUpRight className="portfolio-icon" size={18} aria-hidden="true" /></button> })}</div>
-        <div className="section-cta-row"><span className="mono-note">SELECTED WORK / CMS CONTROLLED</span><a href="#quote" className="text-link">Vreau ceva similar <ArrowUpRight size={14} /></a></div>
+        <div ref={headRef} className="reveal section-heading section-heading-split">
+          <div><p className="eyebrow">04 / PORTOFOLIU</p><h2 className="section-title">MAȘINI CU<br /><span>PREZENȚĂ.</span></h2></div>
+          <p className="body-copy heading-note">Portofoliul este administrabil din Website Studio. Publicarea se face prin CMS, fără recompilarea componentelor de conținut.</p>
+        </div>
+
+        <div className="portfolio-filter-bar" role="tablist" aria-label="Filtrează portofoliul">
+          <div className="portfolio-filter-label"><span>SELECTED WORK</span><strong>{String(visibleItems.length).padStart(2, '0')}</strong></div>
+          <div className="portfolio-filters">{FILTERS.map((value) => <button key={value} type="button" role="tab" aria-selected={filter === value} className={filter === value ? 'is-active' : ''} onClick={() => { setFilter(value); setExpanded(null) }}>{value}</button>)}</div>
+        </div>
+
+        <div className="portfolio-grid">{visibleItems.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <button key={entry.id} onClick={() => setExpanded(index)} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW"><Image src={imageSrc} alt={entry.title || entry.vehicle} fill sizes="(max-width: 768px) 100vw, 50vw" unoptimized={/^https?:\/\//i.test(imageSrc)} className="object-cover" /><div className="portfolio-overlay" /><div className="portfolio-meta"><span>{entry.service}</span><strong>{entry.title}</strong><small>{entry.finish || entry.material}</small></div><ArrowUpRight className="portfolio-icon" size={18} aria-hidden="true" /></button> })}</div>
+        <div className="section-cta-row"><span className="mono-note">SELECTED WORK / {String(visibleItems.length).padStart(2, '0')} PROJECTS</span><a href="#quote" className="text-link">Vreau ceva similar <ArrowUpRight size={14} /></a></div>
       </div>
       {item && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={item.title} onClick={() => setExpanded(null)}><div className="portfolio-modal" onClick={(e) => e.stopPropagation()}><button className="modal-close" onClick={() => setExpanded(null)} aria-label="Închide"><X size={20} /></button><div className="portfolio-modal-media"><Image src={expandedImageSrc} alt={item.title} fill sizes="90vw" unoptimized={/^https?:\/\//i.test(expandedImageSrc)} className="object-cover" /></div><div className="portfolio-modal-copy"><span className="eyebrow">{item.service}</span><h3>{item.title}</h3><div className="portfolio-data-grid"><div><span>Finisaj</span><strong>{item.finish || '—'}</strong></div><div><span>Material</span><strong>{item.material || '—'}</strong></div><div><span>Galerie</span><strong>{item.gallery.length}</strong></div></div>{item.description && <p className="body-copy">{item.description}</p>}<MagneticButton variant="accent" href="#quote" onClick={() => setExpanded(null)}>Solicită un proiect similar</MagneticButton></div></div></div>}
     </section>
