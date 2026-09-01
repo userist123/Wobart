@@ -62,7 +62,7 @@ const mockOrders: Order[] = [
 ]
 
 /* ─── Status config ─── */
-const statusConfig: Record<OrderStatus, { label: string; color: string; icon: React.FC<{ size?: number }> }> = {
+const statusConfig: Record<OrderStatus, { label: string; color: string; icon: React.FC<{ size?: number; style?: React.CSSProperties }> }> = {
   PENDING: { label: 'În așteptare', color: '#6B6B8A', icon: Clock },
   APPROVED: { label: 'Aprobat', color: '#4E6EFF', icon: CheckCircle2 },
   IN_PROGRESS: { label: 'În lucru', color: '#C8FF00', icon: Wrench },
@@ -103,14 +103,11 @@ function NewOrderModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-[#05050A]/80 backdrop-blur-sm" onClick={onClose} />
-      <div
-        className="relative w-full max-w-lg glass-strong rounded-lg p-8"
-      >
+      <div className="relative w-full max-w-lg glass-strong rounded-lg p-8">
         <button onClick={onClose} className="absolute top-4 right-4 text-[#6B6B8A] hover:text-[#EEEEFC] transition-colors">
           <X size={18} />
         </button>
 
-        {/* Progress */}
         <div className="flex items-center gap-2 mb-8">
           {steps.map((s, i) => (
             <div key={s.num} className="flex items-center gap-2">
@@ -125,7 +122,6 @@ function NewOrderModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
 
-        {/* Step content */}
         <div>
           {step === 1 && (
             <div key="step1">
@@ -160,12 +156,7 @@ function NewOrderModal({ onClose }: { onClose: () => void }) {
               <h3 className="font-display text-3xl text-[#EEEEFC] mb-6">SERVICIU DORIT</h3>
               <div className="grid grid-cols-2 gap-3 mb-4">
                 {serviceOptions.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => update('serviceType', s.id)}
-                    className={`p-4 rounded-sm border text-left transition-all ${form.serviceType === s.id ? 'border-[#C8FF00] bg-[#C8FF00]/5' : 'border-[rgba(255,255,255,0.07)] bg-[#0C0C14] hover:border-[rgba(255,255,255,0.15)]'}`}
-                  >
+                  <button key={s.id} type="button" onClick={() => update('serviceType', s.id)} className={`p-4 rounded-sm border text-left transition-all ${form.serviceType === s.id ? 'border-[#C8FF00] bg-[#C8FF00]/5' : 'border-[rgba(255,255,255,0.07)] bg-[#0C0C14] hover:border-[rgba(255,255,255,0.15)]'}`}>
                     <div className={`font-label text-sm font-bold uppercase tracking-wider mb-1 ${form.serviceType === s.id ? 'text-[#C8FF00]' : 'text-[#EEEEFC]'}`}>{s.label}</div>
                     <div className="font-mono text-xs text-[#6B6B8A]">{s.desc}</div>
                   </button>
@@ -173,13 +164,7 @@ function NewOrderModal({ onClose }: { onClose: () => void }) {
               </div>
               <div>
                 <label className="font-label text-xs tracking-widest uppercase text-[#6B6B8A] block mb-1.5">Detalii suplimentare</label>
-                <textarea
-                  value={form.description}
-                  onChange={(e) => update('description', e.target.value)}
-                  placeholder="Descrie ce îți dorești exact..."
-                  rows={3}
-                  className="w-full bg-[#0C0C14] border border-[rgba(255,255,255,0.07)] rounded-sm px-3 py-3 text-[#EEEEFC] placeholder-[#6B6B8A] text-sm focus:outline-none focus:border-[#C8FF00]/40 transition-colors resize-none"
-                />
+                <textarea value={form.description} onChange={(e) => update('description', e.target.value)} placeholder="Descrie ce îți dorești exact..." rows={3} className="w-full bg-[#0C0C14] border border-[rgba(255,255,255,0.07)] rounded-sm px-3 py-3 text-[#EEEEFC] placeholder-[#6B6B8A] text-sm focus:outline-none focus:border-[#C8FF00]/40 transition-colors resize-none" />
               </div>
             </div>
           )}
@@ -189,45 +174,23 @@ function NewOrderModal({ onClose }: { onClose: () => void }) {
               <h3 className="font-display text-3xl text-[#EEEEFC] mb-6">PROGRAMARE</h3>
               <div>
                 <label className="font-label text-xs tracking-widest uppercase text-[#6B6B8A] block mb-1.5">Data dorită</label>
-                <input
-                  type="date"
-                  value={form.date}
-                  onChange={(e) => update('date', e.target.value)}
-                  className="w-full bg-[#0C0C14] border border-[rgba(255,255,255,0.07)] rounded-sm px-3 py-3 text-[#EEEEFC] text-sm focus:outline-none focus:border-[#C8FF00]/40 transition-colors"
-                />
+                <input type="date" value={form.date} onChange={(e) => update('date', e.target.value)} className="w-full bg-[#0C0C14] border border-[rgba(255,255,255,0.07)] rounded-sm px-3 py-3 text-[#EEEEFC] text-sm focus:outline-none focus:border-[#C8FF00]/40 transition-colors" />
               </div>
               <div className="mt-6 p-4 glass rounded-sm">
                 <div className="font-label text-xs tracking-widest uppercase text-[#C8FF00] mb-3">Sumar cerere</div>
                 <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-[#6B6B8A]">Vehicul</span>
-                    <span className="text-[#EEEEFC] font-mono">{form.carBrand} {form.carModel} {form.carYear}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#6B6B8A]">Serviciu</span>
-                    <span className="text-[#EEEEFC] font-mono">{form.serviceType || '—'}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-[#6B6B8A]">Nr. înmatriculare</span>
-                    <span className="text-[#EEEEFC] font-mono">{form.carPlate || '—'}</span>
-                  </div>
+                  <div className="flex justify-between"><span className="text-[#6B6B8A]">Vehicul</span><span className="text-[#EEEEFC] font-mono">{form.carBrand} {form.carModel} {form.carYear}</span></div>
+                  <div className="flex justify-between"><span className="text-[#6B6B8A]">Serviciu</span><span className="text-[#EEEEFC] font-mono">{form.serviceType || '—'}</span></div>
+                  <div className="flex justify-between"><span className="text-[#6B6B8A]">Nr. înmatriculare</span><span className="text-[#EEEEFC] font-mono">{form.carPlate || '—'}</span></div>
                 </div>
               </div>
             </div>
           )}
         </div>
 
-        {/* Navigation */}
         <div className="flex gap-3 mt-8">
-          {step > 1 && (
-            <button onClick={() => setStep(step - 1)} className="flex items-center gap-1.5 border border-[rgba(255,255,255,0.1)] text-[#EEEEFC] font-label uppercase tracking-widest text-xs px-5 py-3 rounded-sm hover:border-[#C8FF00]/30 transition-all">
-              <ArrowLeft size={14} /> Înapoi
-            </button>
-          )}
-          <button
-            onClick={() => step < 3 ? setStep(step + 1) : onClose()}
-            className="flex-1 flex items-center justify-center gap-1.5 bg-[#C8FF00] text-[#05050A] font-label font-bold uppercase tracking-widest text-xs py-3 rounded-sm hover:bg-white transition-all"
-          >
+          {step > 1 && <button onClick={() => setStep(step - 1)} className="flex items-center gap-1.5 border border-[rgba(255,255,255,0.1)] text-[#EEEEFC] font-label uppercase tracking-widest text-xs px-5 py-3 rounded-sm hover:border-[#C8FF00]/30 transition-all"><ArrowLeft size={14} /> Înapoi</button>}
+          <button onClick={() => step < 3 ? setStep(step + 1) : onClose()} className="flex-1 flex items-center justify-center gap-1.5 bg-[#C8FF00] text-[#05050A] font-label font-bold uppercase tracking-widest text-xs py-3 rounded-sm hover:bg-white transition-all">
             {step < 3 ? 'Continuă' : 'Trimite cererea'} <ArrowRight size={14} />
           </button>
         </div>
@@ -244,7 +207,6 @@ function StatusCard({ order }: { order: Order }) {
 
   return (
     <div className="glass rounded-lg p-6">
-      {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div>
           <div className="font-mono text-xs text-[#6B6B8A] mb-1">{order.orderNumber}</div>
@@ -253,29 +215,20 @@ function StatusCard({ order }: { order: Order }) {
         </div>
         <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-sm" style={{ backgroundColor: `${cfg.color}15`, border: `1px solid ${cfg.color}30` }}>
           <Icon size={12} style={{ color: cfg.color }} />
-          <span className="font-label text-xs font-bold tracking-wider uppercase" style={{ color: cfg.color }}>
-            {cfg.label}
-          </span>
+          <span className="font-label text-xs font-bold tracking-wider uppercase" style={{ color: cfg.color }}>{cfg.label}</span>
         </div>
       </div>
 
-      {/* Progress bar */}
       <div className="mb-4">
         <div className="flex justify-between items-center mb-2">
           <span className="font-label text-xs uppercase tracking-wider text-[#6B6B8A]">Progress</span>
           <span className="font-mono text-xs text-[#C8FF00]">{Math.round(((currentIndex + 1) / statusSteps.length) * 100)}%</span>
         </div>
         <div className="h-1 bg-[#1A1A2A] rounded-full overflow-hidden">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentIndex + 1) / statusSteps.length) * 100}%` }}
-            transition={{ duration: 1, ease: 'easeOut' }}
-            className="h-full rounded-full bg-[#C8FF00]"
-          />
+          <div className="h-full rounded-full bg-[#C8FF00] transition-[width] duration-700" style={{ width: `${((currentIndex + 1) / statusSteps.length) * 100}%` }} />
         </div>
       </div>
 
-      {/* Steps */}
       <div className="flex items-center justify-between">
         {statusSteps.map((s, i) => {
           const sCfg = statusConfig[s]
@@ -283,25 +236,15 @@ function StatusCard({ order }: { order: Order }) {
           const done = i <= currentIndex
           return (
             <div key={s} className="flex items-center">
-              <div
-                className="w-6 h-6 rounded-sm flex items-center justify-center transition-all"
-                style={{
-                  backgroundColor: done ? `${cfg.color}20` : '#1A1A2A',
-                  border: `1px solid ${done ? cfg.color + '50' : 'rgba(255,255,255,0.05)'}`,
-                }}
-                title={sCfg.label}
-              >
+              <div className="w-6 h-6 rounded-sm flex items-center justify-center transition-all" style={{ backgroundColor: done ? `${cfg.color}20` : '#1A1A2A', border: `1px solid ${done ? cfg.color + '50' : 'rgba(255,255,255,0.05)'}` }} title={sCfg.label}>
                 <SIcon size={11} style={{ color: done ? cfg.color : '#6B6B8A' }} />
               </div>
-              {i < statusSteps.length - 1 && (
-                <div className={`w-full h-px flex-1 mx-1 ${i < currentIndex ? 'bg-[#C8FF00]/30' : 'bg-[rgba(255,255,255,0.05)]'}`} style={{ minWidth: '12px' }} />
-              )}
+              {i < statusSteps.length - 1 && <div className={`w-full h-px flex-1 mx-1 ${i < currentIndex ? 'bg-[#C8FF00]/30' : 'bg-[rgba(255,255,255,0.05)]'}`} style={{ minWidth: '12px' }} />}
             </div>
           )
         })}
       </div>
 
-      {/* Price */}
       <div className="flex items-center justify-between mt-4 pt-4 border-t border-[rgba(255,255,255,0.05)]">
         <span className="font-label text-xs uppercase tracking-wider text-[#6B6B8A]">Estimat</span>
         <span className="font-mono text-[#C8FF00]">{order.estimatedPrice.toLocaleString('ro-RO')} €</span>
@@ -324,13 +267,9 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#05050A] flex">
-      {/* Sidebar */}
       <aside className="w-16 lg:w-60 border-r border-[rgba(255,255,255,0.06)] flex flex-col py-6">
-        {/* Logo */}
         <div className="px-4 lg:px-6 mb-10">
-          <Link href="/" className="font-display text-xl tracking-widest text-[#EEEEFC] hidden lg:block">
-            WOB<span className="text-[#C8FF00]">.</span>ART
-          </Link>
+          <Link href="/" className="font-display text-xl tracking-widest text-[#EEEEFC] hidden lg:block">WOB<span className="text-[#C8FF00]">.</span>ART</Link>
           <Link href="/" className="font-display text-xl tracking-widest text-[#C8FF00] lg:hidden">W</Link>
         </div>
 
@@ -341,31 +280,19 @@ export default function DashboardPage() {
           ].map((item) => {
             const Icon = item.icon
             return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id as 'overview' | 'orders')}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all ${
-                  activeTab === item.id
-                    ? 'bg-[#C8FF00]/10 text-[#C8FF00]'
-                    : 'text-[#6B6B8A] hover:text-[#EEEEFC] hover:bg-[#0C0C14]'
-                }`}
-              >
+              <button key={item.id} onClick={() => setActiveTab(item.id as 'overview' | 'orders')} className={`flex items-center gap-3 px-3 py-2.5 rounded-sm transition-all ${activeTab === item.id ? 'bg-[#C8FF00]/10 text-[#C8FF00]' : 'text-[#6B6B8A] hover:text-[#EEEEFC] hover:bg-[#0C0C14]'}`}>
                 <Icon size={18} />
                 <span className="hidden lg:block font-label text-sm uppercase tracking-wider">{item.label}</span>
               </button>
             )
           })}
 
-          <button
-            onClick={() => setShowNewOrder(true)}
-            className="flex items-center gap-3 px-3 py-2.5 rounded-sm text-[#6B6B8A] hover:text-[#C8FF00] transition-all mt-2"
-          >
+          <button onClick={() => setShowNewOrder(true)} className="flex items-center gap-3 px-3 py-2.5 rounded-sm text-[#6B6B8A] hover:text-[#C8FF00] transition-all mt-2">
             <Plus size={18} />
             <span className="hidden lg:block font-label text-sm uppercase tracking-wider">Cerere nouă</span>
           </button>
         </nav>
 
-        {/* Bottom */}
         <div className="px-2 mt-auto space-y-1">
           <button className="flex items-center gap-3 px-3 py-2.5 rounded-sm text-[#6B6B8A] hover:text-[#EEEEFC] transition-all w-full">
             <Bell size={18} />
@@ -378,75 +305,41 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* Main content */}
       <main className="flex-1 overflow-y-auto">
-        {/* Top bar */}
         <div className="sticky top-0 z-10 glass border-b border-[rgba(255,255,255,0.06)] px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="font-display text-2xl text-[#EEEEFC]">
-              {activeTab === 'overview' ? 'BUNĂ ZIUA, ION' : 'COMENZILE MELE'}
-            </h1>
-            <p className="text-[#6B6B8A] text-xs font-label uppercase tracking-wider">
-              {new Date().toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
-            </p>
+            <h1 className="font-display text-2xl text-[#EEEEFC]">{activeTab === 'overview' ? 'BUNĂ ZIUA, ION' : 'COMENZILE MELE'}</h1>
+            <p className="text-[#6B6B8A] text-xs font-label uppercase tracking-wider">{new Date().toLocaleDateString('ro-RO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p>
           </div>
-          <button
-            onClick={() => setShowNewOrder(true)}
-            className="flex items-center gap-2 bg-[#C8FF00] text-[#05050A] font-label font-bold uppercase tracking-widest text-xs px-5 py-2.5 rounded-sm hover:bg-white transition-all"
-          >
-            <Plus size={14} /> Cerere nouă
-          </button>
+          <button onClick={() => setShowNewOrder(true)} className="flex items-center gap-2 bg-[#C8FF00] text-[#05050A] font-label font-bold uppercase tracking-widest text-xs px-5 py-2.5 rounded-sm hover:bg-white transition-all"><Plus size={14} /> Cerere nouă</button>
         </div>
 
         <div className="p-6 space-y-8">
-          {/* KPI Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {kpis.map((kpi, i) => (
-              <motion.div
-                key={kpi.label}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.07 }}
-                className="glass rounded-lg p-5"
-              >
-                <div className="font-mono text-3xl font-bold mb-1" style={{ color: kpi.color }}>
-                  {kpi.value}
-                </div>
-                <div className="font-label text-xs uppercase tracking-wider text-[#EEEEFC] mb-0.5">
-                  {kpi.label}
-                </div>
+            {kpis.map((kpi) => (
+              <div key={kpi.label} className="glass rounded-lg p-5">
+                <div className="font-mono text-3xl font-bold mb-1" style={{ color: kpi.color }}>{kpi.value}</div>
+                <div className="font-label text-xs uppercase tracking-wider text-[#EEEEFC] mb-0.5">{kpi.label}</div>
                 <div className="text-[#6B6B8A] text-xs">{kpi.sub}</div>
-              </motion.div>
+              </div>
             ))}
           </div>
 
-          {/* Orders */}
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display text-2xl text-[#EEEEFC]">URMĂRIRE COMENZI</h2>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className="font-label text-xs uppercase tracking-widest text-[#6B6B8A] hover:text-[#C8FF00] transition-colors flex items-center gap-1"
-              >
-                Vezi toate <ChevronRight size={12} />
-              </button>
+              <button onClick={() => setActiveTab('orders')} className="font-label text-xs uppercase tracking-widest text-[#6B6B8A] hover:text-[#C8FF00] transition-colors flex items-center gap-1">Vezi toate <ChevronRight size={12} /></button>
             </div>
 
             <div className="space-y-4">
-              {mockOrders.map((order, i) => (
-                <motion.div
-                  key={order.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
+              {mockOrders.map((order) => (
+                <div key={order.id}>
                   <StatusCard order={order} />
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>
 
-          {/* Quick actions */}
           <div className="glass rounded-lg p-6">
             <h3 className="font-display text-xl text-[#EEEEFC] mb-4">ACȚIUNI RAPIDE</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -457,14 +350,8 @@ export default function DashboardPage() {
               ].map((action) => {
                 const Icon = action.icon
                 return (
-                  <button
-                    key={action.label}
-                    onClick={() => setShowNewOrder(true)}
-                    className="flex items-center gap-3 p-4 rounded-sm border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.15)] transition-all text-left"
-                  >
-                    <div className="w-8 h-8 rounded-sm flex items-center justify-center" style={{ backgroundColor: `${action.accent}15` }}>
-                      <Icon size={16} style={{ color: action.accent }} />
-                    </div>
+                  <button key={action.label} onClick={() => setShowNewOrder(true)} className="flex items-center gap-3 p-4 rounded-sm border border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.15)] transition-all text-left">
+                    <div className="w-8 h-8 rounded-sm flex items-center justify-center" style={{ backgroundColor: `${action.accent}15` }}><Icon size={16} style={{ color: action.accent }} /></div>
                     <span className="font-label text-sm uppercase tracking-wider text-[#EEEEFC]">{action.label}</span>
                     <ChevronRight size={14} className="ml-auto text-[#6B6B8A]" />
                   </button>
@@ -475,10 +362,7 @@ export default function DashboardPage() {
         </div>
       </main>
 
-      {/* New Order Modal */}
-      <AnimatePresence>
-        {showNewOrder && <NewOrderModal onClose={() => setShowNewOrder(false)} />}
-      </AnimatePresence>
+      {showNewOrder && <NewOrderModal onClose={() => setShowNewOrder(false)} />}
     </div>
   )
 }
