@@ -22,6 +22,8 @@ export function ServicesSection() {
 
   const items = cmsServices.length ? cmsServices : SERVICES.map((item, index) => ({ id: item.num || String(index), name: item.title, slug: item.title.toLowerCase().replace(/\s+/g, '-'), eyebrow: item.tagline, description: '', benefits: item.inclusions, process: [], materials: [], imageUrl: item.image, active: true, sortOrder: index }))
   const svc = items[Math.min(active, Math.max(items.length - 1, 0))]
+  const imageSrc = svc?.imageUrl || '/images/hero-car.jpg'
+  const isRemoteImage = /^https?:\/\//i.test(imageSrc)
 
   return (
     <section id="services" className="section section-carbon">
@@ -34,7 +36,7 @@ export function ServicesSection() {
           <div className="services-list" role="tablist" aria-label="Servicii WOB ART">
             {items.map((item, i) => <button key={item.id} role="tab" aria-selected={active === i} onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)} className={`service-row ${active === i ? 'is-active' : ''}`}><span className="service-num">{String(i + 1).padStart(2, '0')}</span><span className="service-title-wrap"><strong>{item.name}</strong><small>{item.eyebrow}</small></span><ArrowUpRight size={17} className="service-arrow" aria-hidden="true" /></button>)}
           </div>
-          {svc && <div className="service-stage"><Image src={svc.imageUrl || '/images/hero-car.jpg'} alt={svc.name} fill sizes="(max-width: 1024px) 100vw, 58vw" className="object-cover" /><div className="service-stage-overlay" /><div className="service-stage-top"><span>{String(active + 1).padStart(2, '0')}</span><span>WOB / MATERIAL LAB</span></div><div className="service-stage-bottom"><div><p className="eyebrow">Include</p><ul>{svc.benefits.slice(0, 4).map((x) => <li key={x}><Check size={13} />{x}</li>)}</ul></div><div className="service-stage-price"><span>Detalii</span><strong>→</strong></div></div></div>}
+          {svc && <div className="service-stage"><Image src={imageSrc} alt={svc.name} fill sizes="(max-width: 1024px) 100vw, 58vw" unoptimized={isRemoteImage} className="object-cover" /><div className="service-stage-overlay" /><div className="service-stage-top"><span>{String(active + 1).padStart(2, '0')}</span><span>WOB / MATERIAL LAB</span></div><div className="service-stage-bottom"><div><p className="eyebrow">Include</p><ul>{svc.benefits.slice(0, 4).map((x) => <li key={x}><Check size={13} />{x}</li>)}</ul></div><div className="service-stage-price"><span>Detalii</span><strong>→</strong></div></div></div>}
         </div>
         <div className="section-cta-row"><span className="mono-note">{String(items.length).padStart(2, '0')} SERVICII / UN SINGUR STANDARD</span><MagneticButton variant="outline" size="md" href="#quote">Discută proiectul tău</MagneticButton></div>
       </div>
