@@ -1,243 +1,135 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle2, Clock3, LogOut, RefreshCw, Search, Users, ClipboardList, MessageSquare, Save, AlertCircle } from 'lucide-react'
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
+import {
+  Activity, Bell, CheckCircle2, ChevronRight, ClipboardList, Globe2, LayoutDashboard,
+  LogOut, Menu, Palette, PenSquare, Plus, RefreshCw, Save, Search, Settings2, ShieldCheck,
+  Trash2, Users, X, Image as ImageIcon,
+} from 'lucide-react'
+import type { PortfolioContent, ServiceContent, SiteContent } from '@/lib/site-content'
 
 type OrderStatus = 'PENDING' | 'APPROVED' | 'IN_PROGRESS' | 'QUALITY_CHECK' | 'COMPLETED'
 type ContactStatus = 'NEW' | 'CONTACTED' | 'QUOTED' | 'WON' | 'LOST' | 'ARCHIVED'
+type Tab = 'overview' | 'leads' | 'orders' | 'clients' | 'website' | 'settings'
+type WebsiteSection = 'global' | 'hero' | 'services' | 'portfolio' | 'seo' | 'theme'
 
-interface Order {
-  id: string
-  order_number: string
-  user_name: string
-  user_email: string
-  car_brand: string
-  car_model: string
-  car_year: number
-  car_plate?: string | null
-  service_type: string
-  finish_type?: string | null
-  description?: string | null
-  preferred_date?: string | null
-  status: OrderStatus
-  estimated_price?: number | null
-  notes?: string | null
-  created_at: string
-  updated_at: string
+type Order = { id: string; order_number: string; user_name: string; user_email: string; car_brand: string; car_model: string; car_year: number; car_plate?: string | null; service_type: string; finish_type?: string | null; description?: string | null; preferred_date?: string | null; status: OrderStatus; estimated_price?: number | null; notes?: string | null; created_at: string; updated_at: string }
+type ContactRequest = { id: string; name: string; email: string; phone: string; car_brand?: string | null; car_model?: string | null; car_year?: string | null; service_type: string; finish_type?: string | null; message?: string | null; status: ContactStatus; created_at: string }
+type User = { id: string; name: string; email: string; phone?: string; role: string; created_at: string }
+type Stats = { total_orders: number; pending_orders: number; total_users: number; total_contacts: number }
+
+const emptyService: ServiceContent = { id: '', name: '', slug: '', eyebrow: '', description: '', benefits: [], process: [], materials: [], imageUrl: '', active: true, sortOrder: 0 }
+const emptyPortfolio: PortfolioContent = { id: '', title: '', slug: '', vehicle: '', service: '', material: '', finish: '', description: '', coverUrl: '', gallery: [], featured: false, active: true, sortOrder: 0 }
+
+async function api<T>(path: string, options: RequestInit = {}) {
+  const response = await fetch(path, { ...options, credentials: 'include', headers: { 'Content-Type': 'application/json', ...(options.headers ?? {}) } })
+  const body = await response.json().catch(() => null)
+  if (!response.ok) throw new Error(body?.detail || body?.error || `Request failed (${response.status})`)
+  return body as T
 }
 
-interface ContactRequest {
-  id: string
-  name: string
-  email: string
-  phone: string
-  car_brand?: string | null
-  car_model?: string | null
-  car_year?: string | null
-  service_type: string
-  finish_type?: string | null
-  message?: string | null
-  status: ContactStatus
-  created_at: string
+function Field({ label, value, onChange, multiline = false }: { label: string; value: string; onChange: (v: string) => void; multiline?: boolean }) {
+  return <label className="block space-y-2"><span className="text-[10px] uppercase tracking-[0.22em] text-white/35">{label}</span>{multiline ? <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={5} className="w-full rounded-xl border border-white/10 bg-white/[0.025] px-3.5 py-3 text-sm leading-6 text-white outline-none focus:border-[#E8FF00]/50" /> : <input value={value} onChange={(e) => onChange(e.target.value)} className="w-full rounded-xl border border-white/10 bg-white/[0.025] px-3.5 py-3 text-sm text-white outline-none focus:border-[#E8FF00]/50" />}</label>
 }
 
-interface Stats {
-  total_orders: number
-  pending_orders: number
-  total_users: number
-  total_contacts: number
+function ArrayEditor({ label, values, onChange }: { label: string; values: string[]; onChange: (v: string[]) => void }) {
+  const [draft, setDraft] = useState('')
+  return <div className="space-y-3"><div className="flex items-center justify-between"><span className="text-[10px] uppercase tracking-[0.22em] text-white/35">{label}</span><span className="font-mono text-[10px] text-white/20">{values.length}</span></div><div className="flex gap-2"><input value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); const v = draft.trim(); if (v) onChange([...values, v]); setDraft('') } }} className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.025] px-3 py-2.5 text-sm text-white outline-none focus:border-[#E8FF00]/50" placeholder="Adaugă..." /><button type="button" onClick={() => { const v = draft.trim(); if (!v) return; onChange([...values, v]); setDraft('') }} className="rounded-xl border border-[#E8FF00]/20 bg-[#E8FF00]/10 px-3 text-[#E8FF00]"><Plus size={14} /></button></div>{values.map((v, i) => <div key={`${v}-${i}`} className="group flex items-center gap-2 rounded-xl border border-white/8 bg-black/15 px-3 py-2"><span className="font-mono text-[10px] text-white/20">{i + 1}</span><span className="flex-1 text-sm text-white/70">{v}</span><button type="button" onClick={() => onChange(values.filter((_, x) => x !== i))} className="text-white/20 opacity-0 group-hover:opacity-100 hover:text-red-300"><Trash2 size={13} /></button></div>)}</div>
 }
 
-const orderStatusLabels: Record<OrderStatus, string> = {
-  PENDING: 'În așteptare',
-  APPROVED: 'Aprobat',
-  IN_PROGRESS: 'În lucru',
-  QUALITY_CHECK: 'Control calitate',
-  COMPLETED: 'Finalizat',
-}
-
-const contactStatusLabels: Record<ContactStatus, string> = {
-  NEW: 'Nouă',
-  CONTACTED: 'Contactat',
-  QUOTED: 'Ofertat',
-  WON: 'Câștigat',
-  LOST: 'Pierdut',
-  ARCHIVED: 'Arhivat',
-}
-
-async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(options.headers ?? {}),
-    },
-  })
-  if (!response.ok) {
-    const body = await response.json().catch(() => null)
-    throw new Error(body?.detail || `Request failed (${response.status})`)
-  }
-  return response.json()
+function Panel({ eyebrow, title, action, children }: { eyebrow: string; title: string; action?: ReactNode; children: ReactNode }) {
+  return <section className="overflow-hidden rounded-2xl border border-white/10 bg-[#0D0F17]/90 shadow-[0_22px_70px_rgba(0,0,0,0.25)]"><div className="flex items-start justify-between gap-4 border-b border-white/8 px-5 py-4 md:px-6"><div><div className="text-[10px] uppercase tracking-[0.24em] text-[#E8FF00]/65">{eyebrow}</div><h2 className="mt-1 font-display text-2xl tracking-wide text-white">{title}</h2></div>{action}</div><div className="p-5 md:p-6">{children}</div></section>
 }
 
 export default function AdminPage() {
   const router = useRouter()
-  const [tab, setTab] = useState<'orders' | 'contacts'>('orders')
+  const [tab, setTab] = useState<Tab>('overview')
+  const [websiteSection, setWebsiteSection] = useState<WebsiteSection>('global')
+  const [mobileNav, setMobileNav] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [notice, setNotice] = useState('')
+  const [query, setQuery] = useState('')
+  const [stats, setStats] = useState<Stats>({ total_orders: 0, pending_orders: 0, total_users: 0, total_contacts: 0 })
   const [orders, setOrders] = useState<Order[]>([])
   const [contacts, setContacts] = useState<ContactRequest[]>([])
-  const [stats, setStats] = useState<Stats | null>(null)
-  const [query, setQuery] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
-  const [saving, setSaving] = useState<string | null>(null)
+  const [users, setUsers] = useState<User[]>([])
+  const [content, setContent] = useState<SiteContent | null>(null)
+  const [selectedService, setSelectedService] = useState(0)
+  const [selectedPortfolio, setSelectedPortfolio] = useState(0)
 
-  const load = async () => {
-    setLoading(true)
-    setError('')
+  async function load() {
+    setLoading(true); setError('')
     try {
-      const [orderData, contactData, statData] = await Promise.all([
-        api<Order[]>('/api/admin/orders'),
-        api<ContactRequest[]>('/api/admin/contact-requests'),
-        api<Stats>('/api/admin/stats'),
+      const [s, o, c, u, site] = await Promise.all([
+        api<Stats>('/api/admin/stats'), api<Order[]>('/api/admin/orders'), api<ContactRequest[]>('/api/admin/contact-requests'), api<User[]>('/api/admin/users'), api<SiteContent>('/api/admin/content'),
       ])
-      setOrders(orderData)
-      setContacts(contactData)
-      setStats(statData)
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Nu s-au putut încărca datele.'
+      setStats(s); setOrders(o); setContacts(c); setUsers(u); setContent(site)
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Nu s-au putut încărca datele.'
       setError(message)
-      if (message.includes('authenticated') || message.includes('Admin access')) router.replace('/login')
-    } finally {
-      setLoading(false)
-    }
+      if (message.toLowerCase().includes('unauthorized') || message.toLowerCase().includes('authenticated')) router.replace('/login')
+    } finally { setLoading(false) }
   }
 
-  useEffect(() => {
-    void load()
-  }, [])
+  useEffect(() => { void load() }, [])
 
-  const filteredOrders = useMemo(() => {
-    const needle = query.trim().toLowerCase()
-    if (!needle) return orders
-    return orders.filter((order) => [order.order_number, order.user_name, order.user_email, order.car_brand, order.car_model, order.service_type].join(' ').toLowerCase().includes(needle))
-  }, [orders, query])
+  const filteredOrders = useMemo(() => { const n = query.trim().toLowerCase(); return !n ? orders : orders.filter((o) => [o.order_number, o.user_name, o.user_email, o.car_brand, o.car_model, o.service_type].join(' ').toLowerCase().includes(n)) }, [orders, query])
+  const filteredContacts = useMemo(() => { const n = query.trim().toLowerCase(); return !n ? contacts : contacts.filter((c) => [c.name, c.email, c.phone, c.car_brand, c.car_model, c.service_type].join(' ').toLowerCase().includes(n)) }, [contacts, query])
 
-  const filteredContacts = useMemo(() => {
-    const needle = query.trim().toLowerCase()
-    if (!needle) return contacts
-    return contacts.filter((item) => [item.name, item.email, item.phone, item.car_brand, item.car_model, item.service_type].join(' ').toLowerCase().includes(needle))
-  }, [contacts, query])
-
-  const updateOrder = async (order: Order, patch: { status?: OrderStatus; estimated_price?: number | null; notes?: string | null }) => {
-    setSaving(order.order_number)
-    setError('')
-    try {
-      const updated = await api<Order>(`/api/admin/orders/${encodeURIComponent(order.order_number)}`, { method: 'PATCH', body: JSON.stringify(patch) })
-      setOrders((current) => current.map((item) => item.order_number === updated.order_number ? updated : item))
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nu s-a putut salva comanda.')
-    } finally {
-      setSaving(null)
-    }
+  function setSite(patch: Partial<SiteContent>) { setContent((prev) => prev ? { ...prev, ...patch } : prev) }
+  async function saveContent() {
+    if (!content) return
+    setSaving(true); setError(''); setNotice('')
+    try { const r = await api<{ ok: boolean; updatedAt: string }>('/api/admin/content', { method: 'PUT', body: JSON.stringify(content) }); setNotice(`Conținut publicat · ${new Date(r.updatedAt).toLocaleString('ro-RO')}`) }
+    catch (e) { setError(e instanceof Error ? e.message : 'Salvarea a eșuat.') }
+    finally { setSaving(false) }
   }
-
-  const updateContact = async (item: ContactRequest, status: ContactStatus) => {
-    setSaving(item.id)
-    setError('')
-    try {
-      const updated = await api<{ id: string; status: ContactStatus }>(`/api/admin/contact-requests/${item.id}?status=${encodeURIComponent(status)}`, { method: 'PATCH' })
-      setContacts((current) => current.map((entry) => entry.id === item.id ? { ...entry, status: updated.status } : entry))
-      await load()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Nu s-a putut actualiza cererea.')
-    } finally {
-      setSaving(null)
-    }
+  async function updateContact(item: ContactRequest, status: ContactStatus) {
+    try { await api(`/api/admin/contact-requests/${item.id}?status=${encodeURIComponent(status)}`, { method: 'PATCH' }); setContacts((v) => v.map((x) => x.id === item.id ? { ...x, status } : x)) } catch (e) { setError(e instanceof Error ? e.message : 'Actualizarea a eșuat.') }
   }
-
-  const logout = async () => {
-    try { await api('/api/auth/logout', { method: 'POST' }) } finally { router.replace('/login') }
+  async function updateOrder(order: Order, patch: { status?: OrderStatus; estimated_price?: number | null }) {
+    try { const updated = await api<Order>(`/api/admin/orders/${encodeURIComponent(order.order_number)}`, { method: 'PATCH', body: JSON.stringify(patch) }); setOrders((v) => v.map((x) => x.order_number === updated.order_number ? updated : x)) } catch (e) { setError(e instanceof Error ? e.message : 'Actualizarea a eșuat.') }
   }
+  async function logout() { try { await api('/api/auth/logout', { method: 'POST' }) } finally { router.replace('/login') } }
 
-  return (
-    <main className="min-h-screen bg-[#090909] text-[#F0F0F0]">
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#090909]/95 backdrop-blur">
-        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-6 px-5 py-4 md:px-8">
-          <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#E8FF00]">WOB ART / ADMIN</p>
-            <h1 className="font-display text-3xl tracking-wide">OPERATIONS</h1>
-          </div>
-          <div className="flex items-center gap-2">
-            <button type="button" onClick={() => void load()} className="inline-flex items-center gap-2 border border-white/10 px-3 py-2 text-xs uppercase tracking-wider text-white/60 transition hover:border-white/20 hover:text-white" disabled={loading}>
-              <RefreshCw size={14} className={loading ? 'animate-spin' : ''} /> Actualizează
-            </button>
-            <button type="button" onClick={() => void logout()} className="inline-flex items-center gap-2 border border-white/10 px-3 py-2 text-xs uppercase tracking-wider text-white/60 transition hover:border-red-400/40 hover:text-white">
-              <LogOut size={14} /> Ieșire
-            </button>
-          </div>
-        </div>
-      </header>
+  if (loading && !content) return <div className="min-h-screen bg-[#070812] text-white grid place-items-center"><div className="flex items-center gap-3 text-white/50"><RefreshCw size={16} className="animate-spin" /> Se încarcă WOB ART Control...</div></div>
 
-      <div className="mx-auto max-w-[1500px] px-5 py-8 md:px-8 md:py-10">
-        {error && <div role="alert" className="mb-6 flex items-center gap-3 border border-red-400/30 bg-red-400/5 px-4 py-3 text-sm text-red-200"><AlertCircle size={16} />{error}</div>}
+  const nav: Array<{ id: Tab; label: string; icon: typeof LayoutDashboard }> = [
+    { id: 'overview', label: 'Overview', icon: LayoutDashboard }, { id: 'leads', label: 'Lead-uri', icon: Bell }, { id: 'orders', label: 'Comenzi', icon: ClipboardList }, { id: 'clients', label: 'Clienți', icon: Users }, { id: 'website', label: 'Website Studio', icon: Globe2 }, { id: 'settings', label: 'Sistem', icon: Settings2 },
+  ]
+  const websiteNav: Array<{ id: WebsiteSection; label: string; icon: typeof PenSquare }> = [
+    { id: 'global', label: 'Identitate & Contact', icon: PenSquare }, { id: 'hero', label: 'Homepage / Hero', icon: ImageIcon }, { id: 'services', label: 'Servicii', icon: ClipboardList }, { id: 'portfolio', label: 'Portfolio', icon: Globe2 }, { id: 'seo', label: 'SEO & Sharing', icon: Activity }, { id: 'theme', label: 'Theme & Motion', icon: Palette },
+  ]
+  const currentService = content?.services[selectedService] ?? emptyService
+  const currentPortfolio = content?.portfolio[selectedPortfolio] ?? emptyPortfolio
 
-        <section className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {[
-            { label: 'Comenzi', value: stats?.total_orders ?? '—', icon: ClipboardList },
-            { label: 'În așteptare', value: stats?.pending_orders ?? '—', icon: Clock3 },
-            { label: 'Utilizatori', value: stats?.total_users ?? '—', icon: Users },
-            { label: 'Cereri contact', value: stats?.total_contacts ?? '—', icon: MessageSquare },
-          ].map((card) => { const Icon = card.icon; return <div key={card.label} className="border border-white/10 bg-white/[0.02] p-4 md:p-5"><Icon size={16} className="text-[#E8FF00]" /><p className="mt-5 font-mono text-[10px] uppercase tracking-[0.2em] text-white/35">{card.label}</p><strong className="mt-1 block font-display text-4xl">{card.value}</strong></div> })}
-        </section>
+  return <div className="min-h-screen bg-[#070812] text-white"><div className="pointer-events-none fixed inset-0 opacity-60 [background:radial-gradient(circle_at_top_right,rgba(232,255,0,0.045),transparent_30%),radial-gradient(circle_at_bottom_left,rgba(79,70,229,0.06),transparent_34%)]" /><div className="relative flex min-h-screen">
+    <aside className={`fixed inset-y-0 left-0 z-40 w-[280px] border-r border-white/8 bg-[#080A12]/95 backdrop-blur-2xl transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${mobileNav ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div className="flex h-full flex-col"><div className="flex items-center justify-between border-b border-white/8 px-5 py-5"><span className="font-display text-2xl tracking-[0.12em]">WOB<span className="text-[#E8FF00]">.</span>ART</span><button className="lg:hidden text-white/50" onClick={() => setMobileNav(false)}><X size={18} /></button></div><div className="px-4 py-4"><div className="rounded-2xl border border-[#E8FF00]/12 bg-[#E8FF00]/[0.03] p-3"><div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-[#E8FF00]"><ShieldCheck size={13} /> Production Control</div><div className="mt-2 text-sm text-white/60">Administrare reală pentru conținut și operațiuni.</div></div></div><nav className="flex-1 px-3">{nav.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => { setTab(id); setMobileNav(false); setError(''); setNotice('') }} className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition ${tab === id ? 'bg-[#E8FF00]/10 text-[#E8FF00]' : 'text-white/50 hover:bg-white/[0.04] hover:text-white'}`}><Icon size={17} /><span className="text-sm">{label}</span>{id === 'leads' && stats.total_contacts > 0 && <span className="ml-auto rounded-full bg-white/8 px-2 py-0.5 font-mono text-[10px]">{stats.total_contacts}</span>}</button>)}</nav><div className="border-t border-white/8 p-3"><button onClick={() => void logout()} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-white/45 hover:bg-red-400/5 hover:text-red-300"><LogOut size={17} /> Ieșire</button></div></div>
+    </aside>
+    <main className="min-w-0 flex-1"><header className="sticky top-0 z-30 border-b border-white/8 bg-[#070812]/80 backdrop-blur-2xl"><div className="flex items-center gap-3 px-4 py-3 md:px-6"><button className="lg:hidden rounded-xl border border-white/10 p-2 text-white/60" onClick={() => setMobileNav(true)}><Menu size={18} /></button><div className="min-w-0 flex-1"><div className="text-[10px] uppercase tracking-[0.22em] text-white/25">WOB ART CONTROL</div><div className="truncate font-display text-xl tracking-wide">{nav.find((x) => x.id === tab)?.label}</div></div><button onClick={() => void load()} className="rounded-xl border border-white/10 p-2 text-white/45 hover:text-white"><RefreshCw size={16} className={loading ? 'animate-spin' : ''} /></button></div></header>
+      <div className="mx-auto max-w-[1750px] space-y-6 p-4 md:p-6 lg:p-8">{(error || notice) && <div className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm ${error ? 'border-red-400/20 bg-red-400/5 text-red-300' : 'border-[#E8FF00]/20 bg-[#E8FF00]/5 text-[#E8FF00]'}`}><span>{error || notice}</span><button onClick={() => { setError(''); setNotice('') }}><X size={15} /></button></div>}
 
-        <section className="mt-8 border-b border-white/10">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="flex gap-1">
-              <button type="button" onClick={() => setTab('orders')} className={`border-b-2 px-4 py-3 text-xs uppercase tracking-[0.2em] ${tab === 'orders' ? 'border-[#E8FF00] text-white' : 'border-transparent text-white/35'}`}>Comenzi</button>
-              <button type="button" onClick={() => setTab('contacts')} className={`border-b-2 px-4 py-3 text-xs uppercase tracking-[0.2em] ${tab === 'contacts' ? 'border-[#E8FF00] text-white' : 'border-transparent text-white/35'}`}>Cereri ofertă</button>
-            </div>
-            <label className="flex items-center gap-2 border border-white/10 px-3 py-2 md:min-w-[320px]">
-              <Search size={15} className="text-white/30" />
-              <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Caută..." className="w-full bg-transparent text-sm outline-none placeholder:text-white/20" />
-            </label>
-          </div>
-        </section>
+        {tab === 'overview' && <><div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{[['Comenzi', stats.total_orders, ClipboardList], ['Lead-uri', stats.total_contacts, Bell], ['Clienți', stats.total_users, Users], ['În așteptare', stats.pending_orders, Activity]].map(([label, value, Icon]) => <div key={String(label)} className="rounded-2xl border border-white/10 bg-[#0D0F17]/90 p-5"><Icon size={16} className="text-[#E8FF00]" /><div className="mt-6 font-mono text-4xl">{value}</div><div className="mt-1 text-sm text-white/75">{label}</div><div className="mt-1 text-xs text-white/30">date din backend</div></div>)}</div><div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]"><Panel eyebrow="OPERATIONS" title="Comenzi recente"><div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b border-white/8 text-left text-[10px] uppercase tracking-wider text-white/30"><th className="px-3 py-3">Comandă</th><th>Client</th><th>Vehicul</th><th>Status</th></tr></thead><tbody>{orders.slice(0, 8).map((o) => <tr key={o.order_number} className="border-b border-white/5"><td className="px-3 py-3 font-mono text-xs text-[#E8FF00]">{o.order_number}</td><td className="px-3 py-3">{o.user_name}</td><td className="px-3 py-3 text-white/55">{o.car_brand} {o.car_model}</td><td className="px-3 py-3 text-xs text-white/50">{o.status}</td></tr>)}{orders.length === 0 && <tr><td colSpan={4} className="py-10 text-center text-white/25">Nu există comenzi.</td></tr>}</tbody></table></div></Panel><Panel eyebrow="CRM" title="Lead-uri recente"><div className="space-y-3">{contacts.slice(0, 8).map((c) => <div key={c.id} className="rounded-xl border border-white/8 bg-white/[0.02] p-3"><div className="flex items-start justify-between gap-3"><div><div className="text-sm text-white/80">{c.name}</div><div className="text-xs text-white/35">{c.email}</div></div><span className="font-mono text-[10px] text-[#E8FF00]/70">{c.status}</span></div><div className="mt-2 text-xs text-white/35">{c.service_type} · {c.car_brand || '—'}</div></div>)}{contacts.length === 0 && <div className="py-10 text-center text-white/25">Nu există lead-uri.</div>}</div></Panel></div></>}
 
-        {loading ? <div className="py-16 text-center font-mono text-xs uppercase tracking-[0.2em] text-white/30">Se încarcă datele...</div> : tab === 'orders' ? (
-          <section className="mt-6 overflow-x-auto border border-white/10">
-            <table className="w-full min-w-[1100px] border-collapse text-left">
-              <thead><tr className="border-b border-white/10 text-[10px] uppercase tracking-[0.2em] text-white/30"><th className="px-4 py-4">Comandă</th><th>Client</th><th>Vehicul</th><th>Serviciu</th><th>Status</th><th>Preț</th><th>Acțiune</th></tr></thead>
-              <tbody>{filteredOrders.map((order) => <tr key={order.order_number} className="border-b border-white/5 align-top">
-                <td className="px-4 py-5"><strong className="font-mono text-xs text-[#E8FF00]">{order.order_number}</strong><p className="mt-1 text-xs text-white/35">{new Date(order.created_at).toLocaleString('ro-RO')}</p></td>
-                <td className="py-5 pr-4"><p className="text-sm">{order.user_name}</p><p className="text-xs text-white/35">{order.user_email}</p></td>
-                <td className="py-5 pr-4"><p className="text-sm">{order.car_brand} {order.car_model}</p><p className="text-xs text-white/35">{order.car_year} {order.car_plate ? `· ${order.car_plate}` : ''}</p></td>
-                <td className="py-5 pr-4"><p className="text-xs uppercase tracking-wider">{order.service_type}</p><p className="text-xs text-white/35">{order.finish_type || '—'}</p></td>
-                <td className="py-5 pr-4"><select value={order.status} onChange={(e) => void updateOrder(order, { status: e.target.value as OrderStatus })} className="border border-white/10 bg-[#111] px-2 py-2 text-xs"><option value="PENDING">{orderStatusLabels.PENDING}</option><option value="APPROVED">{orderStatusLabels.APPROVED}</option><option value="IN_PROGRESS">{orderStatusLabels.IN_PROGRESS}</option><option value="QUALITY_CHECK">{orderStatusLabels.QUALITY_CHECK}</option><option value="COMPLETED">{orderStatusLabels.COMPLETED}</option></select></td>
-                <td className="py-5 pr-4"><input defaultValue={order.estimated_price ?? ''} inputMode="decimal" placeholder="—" className="w-24 border border-white/10 bg-transparent px-2 py-2 text-sm" onBlur={(e) => { const raw = e.target.value.trim(); const value = raw ? Number(raw) : null; if (value !== order.estimated_price) void updateOrder(order, { estimated_price: value }) }} /></td>
-                <td className="py-5 pr-4">{saving === order.order_number ? <span className="text-xs text-white/35">Salvez...</span> : <span className="inline-flex items-center gap-1 text-[10px] uppercase tracking-wider text-white/25"><Save size={12}/> sincronizat</span>}</td>
-              </tr>)}</tbody>
-            </table>
-            {filteredOrders.length === 0 && <div className="p-8 text-center text-sm text-white/30">Nu există comenzi pentru filtrul curent.</div>}
-          </section>
-        ) : (
-          <section className="mt-6 space-y-3">
-            {filteredContacts.map((item) => <article key={item.id} className="border border-white/10 bg-white/[0.02] p-5 md:p-6">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div><div className="flex flex-wrap items-center gap-3"><h2 className="font-display text-2xl">{item.name}</h2><span className="border border-[#E8FF00]/30 px-2 py-1 font-mono text-[10px] uppercase tracking-wider text-[#E8FF00]">{contactStatusLabels[item.status]}</span></div><p className="mt-2 text-sm text-white/50">{item.email} · {item.phone}</p><p className="mt-1 text-xs text-white/30">{item.car_brand || 'Vehicul nespecificat'} {item.car_model || ''} {item.car_year ? `· ${item.car_year}` : ''} · {item.service_type}{item.finish_type ? ` · ${item.finish_type}` : ''}</p></div>
-                <select value={item.status} onChange={(e) => void updateContact(item, e.target.value as ContactStatus)} className="border border-white/10 bg-[#111] px-3 py-2 text-xs"><option value="NEW">{contactStatusLabels.NEW}</option><option value="CONTACTED">{contactStatusLabels.CONTACTED}</option><option value="QUOTED">{contactStatusLabels.QUOTED}</option><option value="WON">{contactStatusLabels.WON}</option><option value="LOST">{contactStatusLabels.LOST}</option><option value="ARCHIVED">{contactStatusLabels.ARCHIVED}</option></select>
-              </div>
-              {item.message && <p className="mt-5 max-w-4xl border-l border-white/10 pl-4 text-sm leading-6 text-white/60">{item.message}</p>}
-              <p className="mt-5 font-mono text-[10px] uppercase tracking-wider text-white/20">{new Date(item.created_at).toLocaleString('ro-RO')}</p>
-            </article>)}
-            {filteredContacts.length === 0 && <div className="border border-white/10 p-8 text-center text-sm text-white/30">Nu există cereri pentru filtrul curent.</div>}
-          </section>
-        )}
-      </div>
-    </main>
-  )
+        {tab === 'leads' && <Panel eyebrow="CRM" title="Lead management" action={<div className="relative"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Caută lead..." className="w-56 rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-3 text-sm outline-none" /></div>}><div className="space-y-3">{filteredContacts.map((c) => <article key={c.id} className="grid gap-4 rounded-2xl border border-white/8 bg-white/[0.02] p-4 lg:grid-cols-[1.3fr_1fr_1fr_200px]"><div><div className="text-sm text-white/85">{c.name}</div><div className="mt-1 text-xs text-white/35">{c.email} · {c.phone}</div></div><div className="text-sm text-white/55">{c.car_brand || '—'} {c.car_model || ''}</div><div className="text-sm text-[#E8FF00]/75">{c.service_type}{c.finish_type ? ` · ${c.finish_type}` : ''}</div><select value={c.status} onChange={(e) => void updateContact(c, e.target.value as ContactStatus)} className="rounded-xl border border-white/10 bg-[#0D0F17] px-3 py-2 text-xs"><option>NEW</option><option>CONTACTED</option><option>QUOTED</option><option>WON</option><option>LOST</option><option>ARCHIVED</option></select>{c.message && <div className="lg:col-span-4 border-l border-white/10 pl-3 text-sm leading-6 text-white/45">{c.message}</div>}</article>)}{filteredContacts.length === 0 && <div className="py-12 text-center text-white/25">Nu există rezultate.</div>}</div></Panel>}
+
+        {tab === 'orders' && <Panel eyebrow="OPERATIONS" title="Comenzi" action={<div className="relative"><Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25" /><input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Caută comandă..." className="w-56 rounded-xl border border-white/10 bg-white/[0.03] py-2 pl-9 pr-3 text-sm outline-none" /></div>}><div className="overflow-x-auto"><table className="min-w-[1100px] w-full text-sm"><thead><tr className="border-b border-white/8 text-left text-[10px] uppercase tracking-wider text-white/30">{['Comandă','Client','Vehicul','Serviciu','Status','Preț',''].map((h) => <th key={h} className="px-3 py-3">{h}</th>)}</tr></thead><tbody>{filteredOrders.map((o) => <tr key={o.order_number} className="border-b border-white/5"><td className="px-3 py-4 font-mono text-xs text-[#E8FF00]">{o.order_number}</td><td className="px-3 py-4"><div>{o.user_name}</div><div className="text-xs text-white/30">{o.user_email}</div></td><td className="px-3 py-4 text-white/55">{o.car_brand} {o.car_model} · {o.car_year}</td><td className="px-3 py-4 text-white/50">{o.service_type}</td><td className="px-3 py-4"><select value={o.status} onChange={(e) => void updateOrder(o, { status: e.target.value as OrderStatus })} className="rounded-lg border border-white/10 bg-[#0D0F17] px-2 py-2 text-xs"><option>PENDING</option><option>APPROVED</option><option>IN_PROGRESS</option><option>QUALITY_CHECK</option><option>COMPLETED</option></select></td><td className="px-3 py-4"><input defaultValue={o.estimated_price ?? ''} onBlur={(e) => { const raw = e.target.value.trim(); const value = raw ? Number(raw) : null; if (value !== o.estimated_price) void updateOrder(o, { estimated_price: value }) }} className="w-24 rounded-lg border border-white/10 bg-transparent px-2 py-2 font-mono text-xs" /></td><td className="px-3 py-4 text-white/20"><ChevronRight size={15} /></td></tr>)}{filteredOrders.length === 0 && <tr><td colSpan={7} className="py-14 text-center text-white/25">Nu există comenzi.</td></tr>}</tbody></table></div></Panel>}
+
+        {tab === 'clients' && <Panel eyebrow="CUSTOMER DATA" title="Clienți"><div className="overflow-x-auto"><table className="min-w-[800px] w-full text-sm"><thead><tr className="border-b border-white/8 text-left text-[10px] uppercase tracking-wider text-white/30">{['Nume','Email','Telefon','Rol','Creat'].map((h) => <th key={h} className="px-3 py-3">{h}</th>)}</tr></thead><tbody>{users.map((u) => <tr key={u.id} className="border-b border-white/5"><td className="px-3 py-4 text-white/80">{u.name}</td><td className="px-3 py-4 font-mono text-xs text-white/45">{u.email}</td><td className="px-3 py-4 text-white/45">{u.phone || '—'}</td><td className="px-3 py-4 text-xs uppercase text-white/40">{u.role}</td><td className="px-3 py-4 text-xs text-white/25">{new Date(u.created_at).toLocaleString('ro-RO')}</td></tr>)}{users.length === 0 && <tr><td colSpan={5} className="py-14 text-center text-white/25">Nu există utilizatori.</td></tr>}</tbody></table></div></Panel>}
+
+        {tab === 'website' && content && <div className="grid gap-6 xl:grid-cols-[250px_1fr]"><aside className="h-fit rounded-2xl border border-white/10 bg-[#0D0F17]/90 p-3 xl:sticky xl:top-24"><div className="px-3 pb-3 pt-2 text-[10px] uppercase tracking-[0.22em] text-white/30">Website Studio</div>{websiteNav.map(({ id, label, icon: Icon }) => <button key={id} onClick={() => setWebsiteSection(id)} className={`mb-1 flex w-full items-center gap-2 rounded-xl px-3 py-3 text-left text-sm ${websiteSection === id ? 'bg-[#E8FF00]/10 text-[#E8FF00]' : 'text-white/50 hover:bg-white/[0.04] hover:text-white'}`}><Icon size={15} />{label}</button>)}<button onClick={() => void saveContent()} disabled={saving} className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-[#E8FF00] px-4 py-3 text-sm font-semibold text-black disabled:opacity-60">{saving ? <RefreshCw size={14} className="animate-spin" /> : <Save size={14} />} Publică</button></aside><div className="space-y-6">
+          {websiteSection === 'global' && <Panel eyebrow="GLOBAL" title="Identitate & Contact"><div className="grid gap-5 md:grid-cols-2"><Field label="Brand" value={content.global.brandName} onChange={(v) => setSite({ global: { ...content.global, brandName: v } })} /><Field label="Tagline" value={content.global.tagline} onChange={(v) => setSite({ global: { ...content.global, tagline: v } })} /><Field label="Telefon" value={content.global.phone} onChange={(v) => setSite({ global: { ...content.global, phone: v } })} /><Field label="Email" value={content.global.email} onChange={(v) => setSite({ global: { ...content.global, email: v } })} /><Field label="Adresă" value={content.global.address} onChange={(v) => setSite({ global: { ...content.global, address: v } })} /><Field label="Oraș" value={content.global.city} onChange={(v) => setSite({ global: { ...content.global, city: v } })} /><Field label="Instagram URL" value={content.global.instagramUrl} onChange={(v) => setSite({ global: { ...content.global, instagramUrl: v } })} /><Field label="Facebook URL" value={content.global.facebookUrl} onChange={(v) => setSite({ global: { ...content.global, facebookUrl: v } })} /><Field label="Program" value={content.global.openingHours} onChange={(v) => setSite({ global: { ...content.global, openingHours: v } })} /></div></Panel>}
+          {websiteSection === 'hero' && <Panel eyebrow="ART DIRECTION" title="Homepage / Hero"><div className="grid gap-5 md:grid-cols-2"><Field label="Eyebrow" value={content.home.hero.eyebrow} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, eyebrow: v } } })} /><Field label="Imagine URL" value={content.home.hero.imageUrl} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, imageUrl: v } } })} /><Field label="Titlu" multiline value={content.home.hero.title} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, title: v } } })} /><Field label="Descriere" multiline value={content.home.hero.description} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, description: v } } })} /><Field label="CTA principal" value={content.home.hero.primaryCtaLabel} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, primaryCtaLabel: v } } })} /><Field label="CTA principal href" value={content.home.hero.primaryCtaHref} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, primaryCtaHref: v } } })} /><Field label="CTA secundar" value={content.home.hero.secondaryCtaLabel} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, secondaryCtaLabel: v } } })} /><Field label="Video URL" value={content.home.hero.videoUrl} onChange={(v) => setSite({ home: { ...content.home, hero: { ...content.home.hero, videoUrl: v } } })} /></div></Panel>}
+          {websiteSection === 'services' && <Panel eyebrow="CONTENT MODEL" title="Servicii" action={<button onClick={() => setContent({ ...content, services: [...content.services, { ...emptyService, id: crypto.randomUUID(), sortOrder: content.services.length }] })} className="inline-flex items-center gap-1.5 rounded-xl border border-[#E8FF00]/20 bg-[#E8FF00]/5 px-3 py-2 text-xs text-[#E8FF00]"><Plus size={13}/> Nou</button>}><div className="grid gap-5 lg:grid-cols-[220px_1fr]"><div className="space-y-2">{content.services.map((s, i) => <button key={s.id || i} onClick={() => setSelectedService(i)} className={`w-full rounded-xl border px-3 py-3 text-left ${selectedService === i ? 'border-[#E8FF00]/25 bg-[#E8FF00]/5 text-[#E8FF00]' : 'border-white/8 text-white/50'}`}>{s.name || `Serviciu ${i + 1}`}</button>)}{content.services.length === 0 && <div className="rounded-xl border border-dashed border-white/10 p-5 text-center text-xs text-white/25">Nu există servicii.</div>}</div><div className="space-y-5"><div className="grid gap-5 md:grid-cols-2"><Field label="Nume" value={currentService.name} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, name: v } : s) })} /><Field label="Slug" value={currentService.slug} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, slug: v } : s) })} /><Field label="Eyebrow" value={currentService.eyebrow} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, eyebrow: v } : s) })} /><Field label="Imagine URL" value={currentService.imageUrl} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, imageUrl: v } : s) })} /></div><Field label="Descriere" multiline value={currentService.description} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, description: v } : s) })} /><div className="grid gap-5 md:grid-cols-3"><ArrayEditor label="Beneficii" values={currentService.benefits} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, benefits: v } : s) })} /><ArrayEditor label="Proces" values={currentService.process} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, process: v } : s) })} /><ArrayEditor label="Materiale" values={currentService.materials} onChange={(v) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, materials: v } : s) })} /></div><div className="flex items-center justify-between rounded-xl border border-white/8 p-3"><label className="text-sm text-white/65"><input type="checkbox" checked={currentService.active} onChange={(e) => setContent({ ...content, services: content.services.map((s, i) => i === selectedService ? { ...s, active: e.target.checked } : s) })} className="mr-2"/>Publicat</label><button onClick={() => setContent({ ...content, services: content.services.filter((_, i) => i !== selectedService) })} className="text-xs text-red-300">Șterge</button></div></div></div></Panel>}
+          {websiteSection === 'portfolio' && <Panel eyebrow="VISUAL CMS" title="Portfolio" action={<button onClick={() => setContent({ ...content, portfolio: [...content.portfolio, { ...emptyPortfolio, id: crypto.randomUUID(), sortOrder: content.portfolio.length }] })} className="inline-flex items-center gap-1.5 rounded-xl border border-[#E8FF00]/20 bg-[#E8FF00]/5 px-3 py-2 text-xs text-[#E8FF00]"><Plus size={13}/> Nou</button>}><div className="grid gap-5 lg:grid-cols-[220px_1fr]"><div className="space-y-2">{content.portfolio.map((p, i) => <button key={p.id || i} onClick={() => setSelectedPortfolio(i)} className={`w-full rounded-xl border px-3 py-3 text-left ${selectedPortfolio === i ? 'border-[#E8FF00]/25 bg-[#E8FF00]/5 text-[#E8FF00]' : 'border-white/8 text-white/50'}`}>{p.title || `Proiect ${i + 1}`}</button>)}{content.portfolio.length === 0 && <div className="rounded-xl border border-dashed border-white/10 p-5 text-center text-xs text-white/25">Nu există proiecte.</div>}</div><div className="space-y-5"><div className="grid gap-5 md:grid-cols-2"><Field label="Titlu" value={currentPortfolio.title} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, title: v } : p) })} /><Field label="Vehicul" value={currentPortfolio.vehicle} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, vehicle: v } : p) })} /><Field label="Serviciu" value={currentPortfolio.service} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, service: v } : p) })} /><Field label="Material" value={currentPortfolio.material} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, material: v } : p) })} /><Field label="Finisaj" value={currentPortfolio.finish} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, finish: v } : p) })} /><Field label="Cover URL" value={currentPortfolio.coverUrl} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, coverUrl: v } : p) })} /></div><Field label="Descriere" multiline value={currentPortfolio.description} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, description: v } : p) })} /><ArrayEditor label="Galerie URL" values={currentPortfolio.gallery} onChange={(v) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, gallery: v } : p) })} /><div className="flex items-center justify-between rounded-xl border border-white/8 p-3"><div className="flex gap-4 text-sm text-white/65"><label><input type="checkbox" checked={currentPortfolio.featured} onChange={(e) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, featured: e.target.checked } : p) })} className="mr-2"/>Featured</label><label><input type="checkbox" checked={currentPortfolio.active} onChange={(e) => setContent({ ...content, portfolio: content.portfolio.map((p, i) => i === selectedPortfolio ? { ...p, active: e.target.checked } : p) })} className="mr-2"/>Publicat</label></div><button onClick={() => setContent({ ...content, portfolio: content.portfolio.filter((_, i) => i !== selectedPortfolio) })} className="text-xs text-red-300">Șterge</button></div></div></div></Panel>}
+          {websiteSection === 'seo' && <Panel eyebrow="DISCOVERY" title="SEO & Sharing"><div className="grid gap-5 md:grid-cols-2"><Field label="Title" value={content.seo.title} onChange={(v) => setSite({ seo: { ...content.seo, title: v } })} /><Field label="Canonical URL" value={content.seo.canonicalUrl} onChange={(v) => setSite({ seo: { ...content.seo, canonicalUrl: v } })} /><Field label="Meta description" multiline value={content.seo.description} onChange={(v) => setSite({ seo: { ...content.seo, description: v } })} /><Field label="OpenGraph image URL" value={content.seo.ogImageUrl} onChange={(v) => setSite({ seo: { ...content.seo, ogImageUrl: v } })} /></div><label className="mt-5 flex items-center gap-2 text-sm text-white/65"><input type="checkbox" checked={content.seo.robotsIndex} onChange={(e) => setSite({ seo: { ...content.seo, robotsIndex: e.target.checked } })} /> Indexare publică</label></Panel>}
+          {websiteSection === 'theme' && <Panel eyebrow="DESIGN SYSTEM" title="Theme & Motion"><div className="grid gap-5 md:grid-cols-2"><Field label="Accent" value={content.theme.accent} onChange={(v) => setSite({ theme: { ...content.theme, accent: v } })} /><Field label="Background" value={content.theme.background} onChange={(v) => setSite({ theme: { ...content.theme, background: v } })} /><Field label="Surface" value={content.theme.surface} onChange={(v) => setSite({ theme: { ...content.theme, surface: v } })} /><Field label="Text" value={content.theme.text} onChange={(v) => setSite({ theme: { ...content.theme, text: v } })} /></div><label className="mt-5 block space-y-2"><span className="text-[10px] uppercase tracking-[0.22em] text-white/35">Motion level</span><select value={content.theme.motionLevel} onChange={(e) => setSite({ theme: { ...content.theme, motionLevel: e.target.value as SiteContent['theme']['motionLevel'] } })} className="w-full rounded-xl border border-white/10 bg-[#0D0F17] px-3.5 py-3 text-sm"><option value="restrained">Restrained</option><option value="expressive">Expressive</option><option value="immersive">Immersive</option></select></label></Panel>}
+        </div></div>}
+
+        {tab === 'settings' && <div className="grid gap-6 xl:grid-cols-2"><Panel eyebrow="RUNTIME" title="Configurare aplicație"><div className="space-y-3"><div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 text-sm text-white/55">Panoul folosește date runtime din backend și CMS. Nu sunt afișate înregistrări hardcodate.</div><div className="rounded-xl border border-white/8 bg-white/[0.02] p-4 text-sm text-white/55">Content API: MongoDB · Auth: backend JWT · Storage media: provider dedicat, de conectat.</div></div></Panel><Panel eyebrow="SAFETY" title="Production rules"><div className="space-y-3 text-sm text-white/45"><div>• Autorizația este verificată server-side.</div><div>• Modificările CMS sunt persistate server-side.</div><div>• Prețurile comerciale rămân configurabile și nu sunt considerate autoritative în client.</div><div>• Upload-urile binare nu sunt încă simulate.</div></div></Panel></div>}
+      </div></main></div></div>
 }
