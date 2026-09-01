@@ -1,0 +1,40 @@
+/* WOB ART — transformation showcase */
+
+#transformation { position: relative; overflow: hidden; background: #080808; }
+#transformation::after { content: 'BEFORE / AFTER'; position: absolute; left: -2%; bottom: 4%; color: rgba(255,255,255,.016); font: 400 clamp(100px, 20vw, 300px)/.75 var(--font-bebas-neue,sans-serif); white-space: nowrap; pointer-events: none; }
+#transformation .section-heading { position: relative; z-index: 2; }
+#transformation .heading-note { max-width: 34ch; color: rgba(240,240,240,.42); }
+.before-after-grid { position: relative; z-index: 3; display: grid; grid-template-columns: repeat(12,minmax(0,1fr)); gap: 18px; margin-top: 58px; }
+.before-after-card { grid-column: span 6; min-height: min(44vw,620px); position: relative; overflow: hidden; }
+.before-after-card:nth-child(3) { grid-column: 3 / span 8; min-height: min(48vw,670px); margin-top: 24px; }
+.before-after-card:hover { transform: translateY(-5px); }
+.before-after-card::after { content: ''; position: absolute; inset: 12px; z-index: 8; border: 1px solid rgba(255,255,255,.1); pointer-events: none; transition: inset .6s cubic-bezier(.16,1,.3,1), border-color .35s ease; }
+.before-after-card:hover::after, .before-after-card:focus-visible::after { inset: 18px; border-color: rgba(232,255,0,.28); }
+.before-after-handle { width: 54px; height: 54px; border-radius: 50%; }
+.before-after-card:hover .before-after-handle { box-shadow: 0 0 0 7px rgba(232,255,0,.06), 0 10px 36px rgba(0,0,0,.6); }
+.before-after-label { backdrop-filter: blur(12px); }
+.before-after-caption { bottom: 18px; left: 20px; font-size: 9px; letter-spacing: .16em; }
+.before-after-hint { bottom: 20px; right: 20px; }
+#transformation .section-cta-row { position: relative; z-index: 4; margin-top: 44px; }
+
+@media (max-width: 900px) {
+  .before-after-grid { grid-template-columns: 1fr 1fr; }
+  .before-after-card { grid-column: span 1; min-height: 54vw; }
+  .before-after-card:nth-child(3) { grid-column: 1 / -1; min-height: 58vw; margin-top: 0; }
+}
+
+@media (max-width: 767px) {
+  #transformation::after { left: -12%; bottom: 8%; font-size: 110px; }
+  .before-after-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 38px; }
+  .before-after-card, .before-after-card:nth-child(3) { grid-column: 1; min-height: 72vw; margin-top: 0; }
+  .before-after-card:hover { transform: none; }
+  .before-after-card::after { inset: 8px; }
+  .before-after-card:hover::after, .before-after-card:focus-visible::after { inset: 8px; }
+  .before-after-handle { width: 46px; height: 46px; }
+  .before-after-caption { left: 12px; bottom: 12px; max-width: 68%; font-size: 8px; }
+  .before-after-hint { right: 12px; bottom: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .before-after-card::after { transition: none; }
+}
