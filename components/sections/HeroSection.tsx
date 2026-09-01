@@ -58,7 +58,6 @@ export function HeroSection() {
   const videoSrc = hero.videoUrl?.trim()
   const isRemoteImage = /^https?:\/\//i.test(imageSrc)
   const titleLines = useMemo(() => hero.title.split('\n').filter(Boolean), [hero.title])
-  const parallax = `${pointer.x * -12}px ${pointer.y * -8 + scrollProgress * 18}px`
 
   return (
     <section className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
