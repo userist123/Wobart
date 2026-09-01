@@ -17,6 +17,11 @@ type StoredVersion = {
   publishedBy?: string
 }
 
+type SiteContentDocument = {
+  _id: string
+  version?: number
+}
+
 async function requireAdmin(request: Request) {
   const backendUrl = process.env.BACKEND_URL ?? process.env.NEXT_PUBLIC_API_URL
   if (!backendUrl) throw new Error('BACKEND_URL is not configured')
@@ -62,12 +67,13 @@ export async function POST(request: Request) {
     const parsed = siteContentSchema.safeParse(source.content)
     if (!parsed.success) return NextResponse.json({ error: 'Stored version is invalid', issues: parsed.error.flatten() }, { status: 409 })
 
-    const current = await db.collection<{ _id: string; version?: number }>('site_content').findOne({ _id: CONTENT_KEY })
+    const siteContent = db.collection<SiteContentDocument>('site_content')
+    const current = await siteContent.findOne({ _id: { $eq: CONTENT_KEY } })
     const version = (current?.version ?? 0) + 1
     const now = new Date().toISOString()
 
-    await db.collection('site_content').replaceOne(
-      { _id: CONTENT_KEY },
+    await siteContent.replaceOne(
+      { _id: { $eq: CONTENT_KEY } },
       { ...parsed.data, _id: CONTENT_KEY, updatedAt: now, updatedBy: admin.email, version, status: 'draft' },
       { upsert: true },
     )
