@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Image from 'next/image'
 import { ArrowDownRight, ArrowUpRight } from 'lucide-react'
 import { MagneticButton } from '@/components/ui/MagneticButton'
@@ -26,6 +26,9 @@ export function HeroSection() {
   const [identity, setIdentity] = useState({ city: '', brandName: 'WOB ART' })
   const [pointer, setPointer] = useState<Pointer>({ x: 0, y: 0 })
   const [scrollProgress, setScrollProgress] = useState(0)
+  const heroRef = useRef<HTMLElement>(null)
+  const pointerFrame = useRef<number | null>(null)
+  const pointerTarget = useRef<Pointer>({ x: 0, y: 0 })
   const kickerRef = useReveal<HTMLParagraphElement>()
   const titleRef = useReveal<HTMLHeadingElement>({ delay: 90 })
   const copyRef = useReveal<HTMLDivElement>({ delay: 170 })
@@ -45,13 +48,25 @@ export function HeroSection() {
   useEffect(() => {
     const move = (event: PointerEvent) => {
       if (window.matchMedia('(pointer: coarse)').matches) return
-      setPointer({ x: (event.clientX / window.innerWidth - 0.5) * 2, y: (event.clientY / window.innerHeight - 0.5) * 2 })
+      pointerTarget.current = {
+        x: (event.clientX / window.innerWidth - 0.5) * 2,
+        y: (event.clientY / window.innerHeight - 0.5) * 2,
+      }
+      if (pointerFrame.current !== null) return
+      pointerFrame.current = requestAnimationFrame(() => {
+        pointerFrame.current = null
+        setPointer(pointerTarget.current)
+      })
     }
     const scroll = () => setScrollProgress(Math.min(1, Math.max(0, window.scrollY / Math.max(window.innerHeight, 1))))
     window.addEventListener('pointermove', move, { passive: true })
     window.addEventListener('scroll', scroll, { passive: true })
     scroll()
-    return () => { window.removeEventListener('pointermove', move); window.removeEventListener('scroll', scroll) }
+    return () => {
+      window.removeEventListener('pointermove', move)
+      window.removeEventListener('scroll', scroll)
+      if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current)
+    }
   }, [])
 
   const imageSrc = hero.imageUrl || fallback.imageUrl
@@ -60,7 +75,7 @@ export function HeroSection() {
   const titleLines = useMemo(() => hero.title.split('\n').filter(Boolean), [hero.title])
 
   return (
-    <section className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
+    <section ref={heroRef} className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
       <div className="hero-media" aria-hidden="true">
         {videoSrc ? (
           <video className="hero-video" autoPlay muted loop playsInline poster={imageSrc} preload="metadata" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.06)` }}>
