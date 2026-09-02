@@ -29,6 +29,14 @@ export function ServicesSection() {
   const imageSrc = svc?.imageUrl || '/images/hero-car.jpg'
   const isRemoteImage = /^https?:\/\//i.test(imageSrc)
 
+  const selectService = (index: number) => setActive(index)
+  const moveService = (index: number, direction: 1 | -1) => {
+    if (!items.length) return
+    const next = (index + direction + items.length) % items.length
+    setActive(next)
+    requestAnimationFrame(() => document.getElementById(`service-tab-${next}`)?.focus())
+  }
+
   return (
     <section id="services" className="section section-carbon services-section">
       <div className="section-shell">
@@ -38,13 +46,51 @@ export function ServicesSection() {
         </div>
         <div className="services-layout">
           <div className="services-list" role="tablist" aria-label="Servicii WOB ART">
-            {items.map((item, i) => <button key={item.id} role="tab" aria-selected={activeIndex === i} onMouseEnter={() => setActive(i)} onFocus={() => setActive(i)} onClick={() => setActive(i)} className={`service-row ${activeIndex === i ? 'is-active' : ''}`}>
-              <span className="service-num">{String(i + 1).padStart(2, '0')}</span>
-              <span className="service-title-wrap"><strong>{item.name}</strong><small>{item.eyebrow}</small></span>
-              <ArrowUpRight size={17} className="service-arrow" aria-hidden="true" />
-            </button>)}
+            {items.map((item, i) => {
+              const selected = activeIndex === i
+              return (
+                <button
+                  key={item.id}
+                  id={`service-tab-${i}`}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  aria-controls="service-panel"
+                  tabIndex={selected ? 0 : -1}
+                  onMouseEnter={() => selectService(i)}
+                  onFocus={() => selectService(i)}
+                  onClick={() => selectService(i)}
+                  onKeyDown={(event) => {
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                      event.preventDefault()
+                      moveService(i, 1)
+                    }
+                    if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                      event.preventDefault()
+                      moveService(i, -1)
+                    }
+                    if (event.key === 'Home') {
+                      event.preventDefault()
+                      setActive(0)
+                      requestAnimationFrame(() => document.getElementById('service-tab-0')?.focus())
+                    }
+                    if (event.key === 'End') {
+                      event.preventDefault()
+                      const last = items.length - 1
+                      setActive(last)
+                      requestAnimationFrame(() => document.getElementById(`service-tab-${last}`)?.focus())
+                    }
+                  }}
+                  className={`service-row ${selected ? 'is-active' : ''}`}
+                >
+                  <span className="service-num">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="service-title-wrap"><strong>{item.name}</strong><small>{item.eyebrow}</small></span>
+                  <ArrowUpRight size={17} className="service-arrow" aria-hidden="true" />
+                </button>
+              )
+            })}
           </div>
-          {svc && <div className="service-stage" role="tabpanel" aria-label={svc.name}>
+          {svc && <div id="service-panel" className="service-stage" role="tabpanel" aria-labelledby={`service-tab-${activeIndex}`}>
             <Image key={imageSrc} src={imageSrc} alt={svc.name} fill sizes="(max-width: 900px) 100vw, 64vw" unoptimized={isRemoteImage} className="object-cover service-stage-image" />
             <div className="service-stage-overlay" />
             <div className="service-stage-top"><span>{String(activeIndex + 1).padStart(2, '0')}</span><span>WOB / MATERIAL LAB</span><span>{svc.slug}</span></div>
