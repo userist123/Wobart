@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 
 interface BeforeAfterProps {
@@ -13,13 +13,27 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [pct, setPct] = useState(50)
   const dragging = useRef(false)
+  const pointerFrame = useRef<number | null>(null)
+  const pointerX = useRef<number | null>(null)
+
+  const commitPointerPosition = useCallback(() => {
+    pointerFrame.current = null
+    const clientX = pointerX.current
+    const el = containerRef.current
+    if (clientX === null || !el) return
+    const rect = el.getBoundingClientRect()
+    const x = Math.max(0, Math.min(1, (clientX - rect.left) / Math.max(rect.width, 1)))
+    setPct(x * 100)
+  }, [])
 
   const update = useCallback((clientX: number) => {
-    const el = containerRef.current
-    if (!el) return
-    const rect = el.getBoundingClientRect()
-    const x = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width))
-    setPct(x * 100)
+    pointerX.current = clientX
+    if (pointerFrame.current !== null) return
+    pointerFrame.current = requestAnimationFrame(commitPointerPosition)
+  }, [commitPointerPosition])
+
+  useEffect(() => () => {
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current)
   }, [])
 
   return (
@@ -28,10 +42,12 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
       className="before-after-card relative w-full aspect-[560/380] overflow-hidden select-none cursor-ew-resize"
       data-cursor="DRAG"
       role="slider"
-      aria-label={label || 'Înainte și după'}
+      aria-label={label || 'Comparație înainte și după'}
+      aria-valuetext={`${Math.round(pct)}% înainte`}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(pct)}
+      aria-orientation="horizontal"
       tabIndex={0}
       onKeyDown={event => {
         if (event.key === 'ArrowLeft') { event.preventDefault(); setPct(p => Math.max(0, p - 5)) }
@@ -49,7 +65,7 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
       }}
       onPointerUp={event => {
         dragging.current = false
-        event.currentTarget.releasePointerCapture(event.pointerId)
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId)
       }}
       onPointerCancel={() => { dragging.current = false }}
       onClick={event => update(event.clientX)}
