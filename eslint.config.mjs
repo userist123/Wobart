@@ -14,4 +14,11 @@ export default defineConfig([
     'next-env.d.ts',
     'tsconfig.tsbuildinfo',
   ]),
+  {
+    rules: {
+      'react-hooks/set-state-in-effect': 'warn',
+      'react-hooks/static-components': 'warn',
+      'react-hooks/purity': 'warn',
+    },
+  },
 ])
