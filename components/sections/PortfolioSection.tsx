@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react'
 import Image from 'next/image'
 import { PORTFOLIO } from '@/lib/constants'
@@ -26,6 +26,9 @@ export function PortfolioSection() {
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [cmsItems, setCmsItems] = useState<PortfolioContent[]>([])
   const headRef = useReveal<HTMLDivElement>()
+  const modalRef = useRef<HTMLDivElement>(null)
+  const closeRef = useRef<HTMLButtonElement>(null)
+  const triggerRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     fetch('/api/content', { cache: 'no-store' })
@@ -46,14 +49,48 @@ export function PortfolioSection() {
 
   useEffect(() => {
     if (expanded === null) return
-    setGalleryIndex(0)
+
+    const previousActive = document.activeElement as HTMLElement | null
+    triggerRef.current = previousActive
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setExpanded(null)
-      if (gallery.length > 1 && event.key === 'ArrowRight') setGalleryIndex((current) => (current + 1) % gallery.length)
-      if (gallery.length > 1 && event.key === 'ArrowLeft') setGalleryIndex((current) => (current - 1 + gallery.length) % gallery.length)
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setExpanded(null)
+        return
+      }
+      if (gallery.length > 1 && event.key === 'ArrowRight') {
+        event.preventDefault()
+        setGalleryIndex((current) => (current + 1) % gallery.length)
+        return
+      }
+      if (gallery.length > 1 && event.key === 'ArrowLeft') {
+        event.preventDefault()
+        setGalleryIndex((current) => (current - 1 + gallery.length) % gallery.length)
+        return
+      }
+      if (event.key !== 'Tab' || !modalRef.current) return
+      const focusable = Array.from(modalRef.current.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+      if (!focusable.length) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
     }
+
     document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
+    document.body.style.overflow = 'hidden'
+    requestAnimationFrame(() => closeRef.current?.focus())
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      document.body.style.overflow = ''
+      requestAnimationFrame(() => triggerRef.current?.focus())
+    }
   }, [expanded, gallery.length])
 
   return (
@@ -69,26 +106,26 @@ export function PortfolioSection() {
           <div className="portfolio-filters">{FILTERS.map((value) => <button key={value} type="button" role="tab" aria-selected={filter === value} className={filter === value ? 'is-active' : ''} onClick={() => { setFilter(value); setExpanded(null) }}>{value}</button>)}</div>
         </div>
 
-        <div className="portfolio-grid">{visibleItems.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <button key={entry.id} onClick={() => setExpanded(index)} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW">
+        <div className="portfolio-grid">{visibleItems.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <button key={entry.id} onClick={(event) => { triggerRef.current = event.currentTarget; setExpanded(index) }} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW" aria-label={`Vezi proiectul ${entry.title || entry.vehicle}`}>
           <Image src={imageSrc} alt={entry.title || entry.vehicle} fill sizes="(max-width: 768px) 100vw, 50vw" unoptimized={/^https?:\/\//i.test(imageSrc)} className="object-cover" />
           <div className="portfolio-overlay" /><div className="portfolio-meta"><span>{entry.service}</span><strong>{entry.title}</strong><small>{entry.finish || entry.material}</small></div><ArrowUpRight className="portfolio-icon" size={18} aria-hidden="true" />
         </button> })}</div>
         <div className="section-cta-row"><span className="mono-note">SELECTED WORK / {String(visibleItems.length).padStart(2, '0')} PROJECTS</span><a href="#quote" className="text-link">Vreau ceva similar <ArrowUpRight size={14} /></a></div>
       </div>
 
-      {item && <div className="modal-backdrop" role="dialog" aria-modal="true" aria-label={item.title} onClick={() => setExpanded(null)}>
-        <div className="portfolio-modal" onClick={(e) => e.stopPropagation()}>
-          <button className="modal-close" onClick={() => setExpanded(null)} aria-label="Închide"><X size={20} /></button>
+      {item && <div className="modal-backdrop" role="presentation" onClick={() => setExpanded(null)}>
+        <div ref={modalRef} className="portfolio-modal" role="dialog" aria-modal="true" aria-labelledby="portfolio-dialog-title" onClick={(e) => e.stopPropagation()}>
+          <button ref={closeRef} className="modal-close" onClick={() => setExpanded(null)} aria-label="Închide proiectul"><X size={20} /></button>
           <div className="portfolio-modal-media">
             <Image key={activeGalleryImage} src={activeGalleryImage} alt={`${item.title} — ${galleryIndex + 1}`} fill sizes="90vw" unoptimized={/^https?:\/\//i.test(activeGalleryImage)} className="object-cover" />
             {gallery.length > 1 && <><button className="portfolio-gallery-arrow portfolio-gallery-prev" onClick={() => setGalleryIndex((current) => (current - 1 + gallery.length) % gallery.length)} aria-label="Imaginea anterioară"><ArrowLeft size={18} /></button><button className="portfolio-gallery-arrow portfolio-gallery-next" onClick={() => setGalleryIndex((current) => (current + 1) % gallery.length)} aria-label="Imaginea următoare"><ArrowRight size={18} /></button></>}
-            {gallery.length > 1 && <div className="portfolio-gallery-counter">{String(galleryIndex + 1).padStart(2, '0')} / {String(gallery.length).padStart(2, '0')}</div>}
+            {gallery.length > 1 && <div className="portfolio-gallery-counter" aria-live="polite">{String(galleryIndex + 1).padStart(2, '0')} / {String(gallery.length).padStart(2, '0')}</div>}
           </div>
           <div className="portfolio-modal-copy">
-            <span className="eyebrow">{item.service}</span><h3>{item.title}</h3>
+            <span className="eyebrow">{item.service}</span><h3 id="portfolio-dialog-title">{item.title}</h3>
             <div className="portfolio-data-grid"><div><span>Finisaj</span><strong>{item.finish || '—'}</strong></div><div><span>Material</span><strong>{item.material || '—'}</strong></div><div><span>Galerie</span><strong>{gallery.length}</strong></div><div><span>Vehicul</span><strong>{item.vehicle || '—'}</strong></div></div>
             {item.description && <p className="body-copy">{item.description}</p>}
-            {gallery.length > 1 && <div className="portfolio-thumbs" aria-label="Galerie proiect">{gallery.map((src, index) => <button key={`${src}-${index}`} className={galleryIndex === index ? 'is-active' : ''} onClick={() => setGalleryIndex(index)} aria-label={`Imaginea ${index + 1}`}><Image src={src} alt="" fill sizes="90px" unoptimized={/^https?:\/\//i.test(src)} className="object-cover" /></button>)}</div>}
+            {gallery.length > 1 && <div className="portfolio-thumbs" aria-label="Galerie proiect">{gallery.map((src, index) => <button key={`${src}-${index}`} className={galleryIndex === index ? 'is-active' : ''} onClick={() => setGalleryIndex(index)} aria-label={`Imaginea ${index + 1}`} aria-current={galleryIndex === index ? 'true' : undefined}><Image src={src} alt="" fill sizes="90px" unoptimized={/^https?:\/\//i.test(src)} className="object-cover" /></button>)}</div>}
             <MagneticButton variant="accent" href="#quote" onClick={() => setExpanded(null)}>Solicită un proiect similar</MagneticButton>
           </div>
         </div>
