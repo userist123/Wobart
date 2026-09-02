@@ -26,7 +26,6 @@ export function HeroSection() {
   const [identity, setIdentity] = useState({ city: '', brandName: 'WOB ART' })
   const [pointer, setPointer] = useState<Pointer>({ x: 0, y: 0 })
   const [scrollProgress, setScrollProgress] = useState(0)
-  const heroRef = useRef<HTMLElement>(null)
   const pointerFrame = useRef<number | null>(null)
   const pointerTarget = useRef<Pointer>({ x: 0, y: 0 })
   const kickerRef = useReveal<HTMLParagraphElement>()
@@ -75,7 +74,7 @@ export function HeroSection() {
   const titleLines = useMemo(() => hero.title.split('\n').filter(Boolean), [hero.title])
 
   return (
-    <section ref={heroRef} className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
+    <section className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
       <div className="hero-media" aria-hidden="true">
         {videoSrc ? (
           <video className="hero-video" autoPlay muted loop playsInline poster={imageSrc} preload="metadata" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.06)` }}>
