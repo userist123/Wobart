@@ -30,6 +30,38 @@ export const transformationContentSchema = z.object({
   sortOrder: z.number().int(),
 })
 
+export const wrapColorContentSchema = z.object({
+  id: z.string().trim(),
+  name: z.string().trim(),
+  hex: z.string().trim().regex(/^#[0-9a-fA-F]{6}$/),
+  finish: z.enum(['gloss', 'matte', 'satin', 'chrome', 'color-shift']),
+  active: z.boolean(),
+  sortOrder: z.number().int(),
+})
+
+export const faqItemContentSchema = z.object({
+  question: z.string().trim(),
+  answer: z.string().trim(),
+  active: z.boolean(),
+  sortOrder: z.number().int(),
+})
+
+/** Optional, backwards compatible: published documents without these keys still validate. */
+export const configuratorContentSchema = z.object({
+  eyebrow: z.string().default(''),
+  title: z.string().default(''),
+  body: z.string().default(''),
+  posterUrl: z.string().default(''),
+  colors: z.array(wrapColorContentSchema).default([]),
+}).default({ eyebrow: '', title: '', body: '', posterUrl: '', colors: [] })
+
+export const faqContentSchema = z.object({
+  eyebrow: z.string().default(''),
+  title: z.string().default(''),
+  body: z.string().default(''),
+  items: z.array(faqItemContentSchema).default([]),
+}).default({ eyebrow: '', title: '', body: '', items: [] })
+
 export const siteContentSchema = z.object({
   global: z.object({
     brandName: z.string(), tagline: z.string(), phone: z.string(), email: z.string(), address: z.string(),
@@ -48,6 +80,8 @@ export const siteContentSchema = z.object({
     transformations: z.array(transformationContentSchema).default([]),
     reviews: z.array(reviewContentSchema),
     cta: z.object({ eyebrow: z.string(), title: z.string(), body: z.string(), buttonLabel: z.string(), buttonHref: z.string() }),
+    configurator: configuratorContentSchema,
+    faq: faqContentSchema,
   }),
   services: z.array(serviceContentSchema),
   portfolio: z.array(portfolioContentSchema),

@@ -12,6 +12,10 @@ import { ReviewsSection } from '@/components/sections/ReviewsSection'
 import { QuoteForm } from '@/components/sections/QuoteForm'
 import { CtaSection } from '@/components/sections/CtaSection'
 import { Footer } from '@/components/sections/Footer'
+import { ConfiguratorSection } from '@/components/sections/ConfiguratorSection'
+import { FaqSection } from '@/components/sections/FaqSection'
+import { StructuredData } from '@/components/seo/StructuredData'
+import { WhatsAppCta } from '@/components/ui/WhatsAppCta'
 import { Cursor } from '@/components/ui/Cursor'
 
 export default function HomePage() {
@@ -23,14 +27,18 @@ export default function HomePage() {
       <TrustBar />
       <BrandStatementSection />
       <ServicesSection />
+      <ConfiguratorSection />
       <BeforeAfterSection />
       <PortfolioSection />
       <ProcessSection />
       <EstimatorSection />
       <ReviewsSection />
+      <FaqSection />
       <QuoteForm />
       <CtaSection />
       <Footer />
+      <StructuredData />
+      <WhatsAppCta />
     </main>
   )
 }

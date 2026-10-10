@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { defaultSiteContent, type SiteContent } from '@/lib/site-content'
+import { defaultSiteContent, withContentDefaults, type SiteContent } from '@/lib/site-content'
 
 export function useSiteContent() {
   const [content, setContent] = useState<SiteContent>(defaultSiteContent)
@@ -14,7 +14,7 @@ export function useSiteContent() {
         if (!response.ok) throw new Error('CMS unavailable')
         return response.json() as Promise<SiteContent>
       })
-      .then((data) => { if (!cancelled) setContent(data) })
+      .then((data) => { if (!cancelled) setContent(withContentDefaults(data)) })
       .catch(() => { /* Keep the safe local defaults when the CMS is not configured. */ })
       .finally(() => { if (!cancelled) setReady(true) })
     return () => { cancelled = true }
