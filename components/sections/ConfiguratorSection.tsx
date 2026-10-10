@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
+import { Move3d } from 'lucide-react'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { useReveal } from '@/hooks/useReveal'
 import { useSiteContent } from '@/hooks/useSiteContent'
@@ -17,6 +18,14 @@ const FINISH_LABEL: Record<WrapFinish, string> = {
   chrome: 'Crom',
   'color-shift': 'Color-Shift',
 }
+const FINISH_DESC: Record<WrapFinish, string> = {
+  gloss: 'Luciu adânc, reflexii clare, cel mai apropiat de vopseaua originală.',
+  satin: 'Reflexii difuze, aspect mat-mătăsos, ascunde micile imperfecțiuni.',
+  matte: 'Fără luciu, prezență dramatică, necesită îngrijire atentă.',
+  chrome: 'Oglindă metalică, efect maxim, montaj pretențios.',
+  'color-shift': 'Culoarea se schimbă cu unghiul de vedere și lumina.',
+}
+const FACTS = ['VIZUALIZARE ORIENTATIVĂ', 'CULORI DIN CATALOGUL CMS', 'OFERTA DUPĂ EVALUARE']
 const FINISH_ORDER: WrapFinish[] = ['gloss', 'matte', 'satin', 'chrome', 'color-shift']
 
 const FALLBACK_TITLE = 'ALEGE FINISAJUL.\nVEZI-L LIVE.'
@@ -46,6 +55,7 @@ export function ConfiguratorSection() {
   const [filter, setFilter] = useState<WrapFinish | 'all'>('all')
   const [canvasOn, setCanvasOn] = useState(false)
   const [visible, setVisible] = useState(false)
+  const [interacted, setInteracted] = useState(false)
 
   const colors = useMemo(
     () => (cfg?.colors ?? []).filter((c) => c.active).sort((a, b) => a.sortOrder - b.sortOrder),
@@ -113,6 +123,7 @@ export function ConfiguratorSection() {
             className="configurator-stage"
             role="img"
             aria-label={`Model generic în ${selected.name}, finisaj ${finishLabel}`}
+            onPointerDown={() => setInteracted(true)}
           >
             {canvasOn ? (
               <WrapConfigurator color={selected} active={visible} label={`Model generic în ${selected.name}`} />
@@ -130,6 +141,15 @@ export function ConfiguratorSection() {
                 <span className="configurator-static-label">PREVIEW STATIC</span>
               </>
             )}
+            {canvasOn && (
+              <>
+                <span className="configurator-caption" aria-hidden="true">MODEL GENERIC / 3D LIVE</span>
+                <span className="configurator-hint" data-hidden={interacted} aria-hidden="true">
+                  <Move3d size={14} strokeWidth={1.75} />
+                  Trage pentru a roti
+                </span>
+              </>
+            )}
             <span className="configurator-stage-frame" aria-hidden="true" />
           </div>
 
@@ -137,6 +157,7 @@ export function ConfiguratorSection() {
             <fieldset className="configurator-fieldset">
               <legend className="eyebrow">Culoare și finisaj</legend>
 
+              <p className="eyebrow configurator-sublabel" aria-hidden="true">FINISAJ</p>
               <div className="configurator-filters">
                 {(['all', ...finishes] as const).map((f) => (
                   <button
@@ -171,6 +192,7 @@ export function ConfiguratorSection() {
                     >
                       <span className="sr-only">{`${c.name}, ${FINISH_LABEL[c.finish]}`}</span>
                     </label>
+                    {selected.id === c.id && <span className="configurator-swatch-name" aria-hidden="true">{c.name}</span>}
                   </span>
                 ))}
               </div>
@@ -178,13 +200,21 @@ export function ConfiguratorSection() {
 
             <div className="configurator-readout" aria-live="polite">
               <strong className="configurator-name">{selected.name}</strong>
-              <span className="configurator-finish">{finishLabel}</span>
+              <div className="configurator-specs">
+                <span>FINISAJ · <b>{finishLabel}</b></span>
+                <span>COD · <b>{selected.hex.toUpperCase()}</b></span>
+              </div>
+              <p className="configurator-desc">{FINISH_DESC[selected.finish]}</p>
             </div>
 
             <div className="section-cta-row configurator-cta">
               <MagneticButton href="#quote">Cere ofertă pentru acest finisaj</MagneticButton>
               <MagneticButton href="#portfolio" variant="ghost">Vezi lucrări reale</MagneticButton>
             </div>
+
+            <ul className="configurator-facts">
+              {FACTS.map((f) => <li key={f}>{f}</li>)}
+            </ul>
 
             <p className="body-copy configurator-disclaimer">
               Randare orientativă pe un model generic — nu reprezintă un vehicul sau o folie anume. Model 3D: „Car Concept” © 2024 Darmstadt Graphics Group GmbH / Eric Chadwick,{' '}
