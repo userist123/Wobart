@@ -225,6 +225,9 @@ function buildFormations(scene: THREE.Object3D, count: number) {
   return [ring, car, exploded, wave, car, galaxy]
 }
 
+// horizontal bias per formation: +1 = text on the left, so the particles move right
+const SIDE = [0, 1, -1, 1, -1, 0]
+
 function Particles({ progress, pointer, size }: Props) {
   const { scene } = useGLTF(MODEL_URL, false, true)
   const gl = useThree((s) => s.gl)
@@ -301,6 +304,11 @@ function Particles({ progress, pointer, size }: Props) {
     const carWeight = Math.max(0, 1 - Math.abs(m - 1.5) / 1.7) + Math.max(0, 1 - Math.abs(m - 4) / 0.9)
     g.rotation.y = (state.clock.elapsedTime * 0.1 - 0.55) * carWeight + pointer.current.x * 0.22
     g.rotation.x = (m > 4.1 ? (m - 4.1) * 0.62 : 0) + pointer.current.y * 0.1
+    // side chapters: push the formation away from the text column (desktop only; mobile text sits below)
+    const k = m - i0
+    const side = SIDE[i0] * (1 - k) + SIDE[Math.min(i0 + 1, FORMATIONS - 1)] * k
+    const shift = state.viewport.aspect > 1.1 ? side * state.viewport.width * 0.17 : 0
+    g.position.x += (shift - g.position.x) * (1 - Math.exp(-4 * dt))
   })
 
   return (
