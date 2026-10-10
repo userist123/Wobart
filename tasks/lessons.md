@@ -13,3 +13,8 @@
   review markup as ineligible. Only third-party counts stored in the CMS may feed it.
 - 2026-10-10 — I committed and pushed with `pnpm lint` exit 1 because the commit was chained after the lint with `;`.
   Rule: chain commit/push after checks with `&&` only, never `;`, so a red check blocks the push.
+
+## 2026-10-11 — `git commit -am` swept unrelated work into the wrong commit
+- Blender-script commits used `-am` and silently included in-progress `ParticleHero.tsx` edits that import an
+  untracked `FrameScrub.tsx`, so the pushed branch did not build.
+- Rule: stage explicit paths (`git add <files>`), never `-a`, when the tree has other edits; run `tsc` before every push.
