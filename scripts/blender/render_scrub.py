@@ -226,16 +226,36 @@ def holo_copy(o, mat, parent):
 
 holo_root = bpy.data.objects.new("HoloRoot", None)
 scene.collection.objects.link(holo_root)
+WIRE_PARTS = ("Body", "Wheel", "Mesh_")  # exterior panels and wheels; interior wire is only clutter
+wires = []
 for o in meshes:
     holo_copy(o, shell_mat, holo_root)
+    if not o.name.startswith(WIRE_PARTS) or "Wiper" in o.name:
+        continue
     w = holo_copy(o, wire_mat, holo_root)
+    weld = w.modifiers.new("weld", "WELD")  # duplicate verts make the wireframe spike off to infinity
+    weld.merge_threshold = 0.0005
     dec = w.modifiers.new("panels", "DECIMATE")
     dec.decimate_type = "DISSOLVE"
     dec.angle_limit = math.radians(7)
     wf = w.modifiers.new("wire", "WIREFRAME")
     wf.thickness = 0.0075 / max(w.matrix_world.to_scale().x, 1e-6)
     wf.use_replace = True
-    wf.use_even_offset = True
+    wf.use_even_offset = False
+    wf.use_relative_offset = False
+    wires.append(w)
+# safety net: drop any wire object whose evaluated geometry still escapes the car's bounds
+bpy.context.view_layer.update()
+_dg = bpy.context.evaluated_depsgraph_get()
+for w in wires:
+    ev = w.evaluated_get(_dg)
+    me = ev.to_mesh()
+    cs = [ev.matrix_world @ v.co for v in me.vertices]
+    too_big = bool(cs) and max(max(abs(c.x) for c in cs), max(abs(c.y) for c in cs), max(c.z for c in cs)) > 3.5
+    ev.to_mesh_clear()
+    if too_big:
+        log("WIRE dropped", w.name)
+        bpy.data.objects.remove(w, do_unlink=True)
 for c in holo_root.children:  # the hologram never casts shadows
     c.visible_shadow = False
 
