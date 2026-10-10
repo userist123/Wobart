@@ -11,3 +11,5 @@
   Rule: depend on a key derived from the content (`items.join('\u0000')`), not on the count.
 - 2026-10-10 — Do not emit `aggregateRating` from the studio's own testimonials: Google treats self-serving LocalBusiness
   review markup as ineligible. Only third-party counts stored in the CMS may feed it.
+- 2026-10-10 — I committed and pushed with `pnpm lint` exit 1 because the commit was chained after the lint with `;`.
+  Rule: chain commit/push after checks with `&&` only, never `;`, so a red check blocks the push.
