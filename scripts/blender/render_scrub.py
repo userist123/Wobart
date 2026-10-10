@@ -313,6 +313,7 @@ def area(name, loc, rot, size_xy, energy, colour):
     light.data.size, light.data.size_y = size_xy
     light.data.energy = energy
     light.data.color = colour
+    light.visible_camera = False  # the flying camera passes close to the strips; keep only their reflections
     return light
 
 

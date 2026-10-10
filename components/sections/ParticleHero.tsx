@@ -1,17 +1,34 @@
 'use client'
 
 /**
- * Scroll story hero: a 700vh track with a sticky viewport. The particle canvas reads scroll progress
- * from a ref; DOM chapters (real, crawlable text) fade in and out on top. Native scroll, no hijacking.
+ * Scroll story hero: a tall track with a sticky viewport. A canvas scrubs the pre-rendered Blender frames by
+ * scroll progress (read from a ref); DOM chapters (real, crawlable text) fade in and out on top. Native scroll, no hijacking.
  * Reduced motion or no WebGL: chapters render as a normal stacked section over a static glow.
  */
-import dynamic from 'next/dynamic'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 
-const ParticleStory = dynamic(() => import('@/components/canvas/ParticleStory'), { ssr: false, loading: () => null })
+import { FrameScrub } from '@/components/canvas/FrameScrub'
+
+/** Pre-rendered Blender story (scripts/blender/render_scrub.py): 151 frames, 30 per chapter. */
+const FRAME_COUNT = 151
+const SIDE = [0, 1, -1, 1, -1, 0] // must match render_scrub.py: +1 = text left, car framed right
+const SHIFT = 0.19
+const smooth = (x: number) => { const t = Math.min(1, Math.max(0, x)); return t * t * (3 - 2 * t) }
+/** Where the car sits horizontally in the frame at progress p, so phone crops can follow it. */
+const carFocus = (p: number) => {
+  const m = Math.min(4.9999, Math.max(0, p * 5))
+  const i = Math.floor(m)
+  const k = smooth(m - i)
+  return 0.5 + (SIDE[i] * (1 - k) + SIDE[i + 1] * k) * SHIFT
+}
+/** 1920 px frames for large/HiDPI screens, 1280 px otherwise. */
+const frameSrc = (i: number) => {
+  const dir = window.innerWidth * Math.min(window.devicePixelRatio || 1, 2) > 1400 ? 1920 : 1280
+  return `/story/${dir}/f${String(i + 1).padStart(4, '0')}.webp`
+}
 
 type Chapter = { eyebrow: string; title: string; accent?: string; body?: string; hud?: string[]; cta?: boolean; align: 'center' | 'left' | 'right' }
 
@@ -35,9 +52,7 @@ export function ParticleHero() {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false)
   const trackRef = useRef<HTMLElement>(null)
   const progress = useRef(0)
-  const pointer = useRef({ x: 0, y: 0 })
   const [chapter, setChapter] = useState(0)
-  const [size] = useState(() => (typeof window !== 'undefined' && window.innerWidth < 768 ? 208 : 352))
 
   useEffect(() => {
     if (!animated || !trackRef.current) return
@@ -54,9 +69,7 @@ export function ParticleHero() {
         setChapter((prev) => (prev === c ? prev : c))
       },
     })
-    const onPointer = (e: PointerEvent) => { pointer.current = { x: (e.clientX / window.innerWidth - 0.5) * 2, y: (e.clientY / window.innerHeight - 0.5) * 2 } }
-    window.addEventListener('pointermove', onPointer, { passive: true })
-    return () => { st.kill(); window.removeEventListener('pointermove', onPointer) }
+    return () => { st.kill() }
   }, [animated])
 
   if (!animated) {
@@ -70,7 +83,7 @@ export function ParticleHero() {
   return (
     <section id="hero" ref={trackRef} className="ph-track" style={{ height: `${CHAPTERS.length * 115}vh` }}>
       <div className="ph-sticky">
-        <div className="ph-canvas"><ParticleStory progress={progress} pointer={pointer} size={size} /></div>
+        <div className="ph-canvas"><FrameScrub progress={progress} src={frameSrc} count={FRAME_COUNT} focusX={carFocus} /></div>
         <div className="ph-vignette" aria-hidden="true" />
         {CHAPTERS.map((c, i) => <ChapterBlock key={i} c={c} active={i === chapter} index={i} />)}
         <div className="ph-rail" aria-hidden="true">
