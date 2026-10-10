@@ -50,3 +50,10 @@ body{font-family:var(--font-sans);font-size:16px;letter-spacing:0}
 body::after{opacity:.022;mix-blend-mode:overlay}
 
 @media(prefers-reduced-motion:reduce){.holo-bg::after{animation:none}.reveal{filter:none}}
+
+/* ── Page canvas never shows white (smooth scroll, overscroll) ── */
+html{background:#050505;color-scheme:dark}
+
+/* ── Photography graded into the palette: the v1 photos carry a neon yellow-green underglow;
+   hue-rotate maps it onto the cyan accent while the near-neutral car paint barely moves ── */
+.v2-hero-img{filter:hue-rotate(112deg) saturate(.92) contrast(1.04)}
