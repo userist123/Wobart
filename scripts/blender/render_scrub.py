@@ -475,6 +475,24 @@ scene.view_settings.look = "AgX - Punchy"
 scene.render.image_settings.file_format = "PNG"
 scene.render.use_motion_blur = False
 
+if "inspect" in opts:  # --inspect 1: print the largest evaluated hologram objects, no render
+    dg = bpy.context.evaluated_depsgraph_get()
+    rows = []
+    for o in list(holo_root.children) + [c for e in layer_empties for c in e.children]:
+        ev = o.evaluated_get(dg)
+        me = ev.to_mesh()
+        cs = [ev.matrix_world @ v.co for v in me.vertices] or [Vector()]
+        size = Vector((max(c.x for c in cs) - min(c.x for c in cs), max(c.y for c in cs) - min(c.y for c in cs), max(c.z for c in cs) - min(c.z for c in cs)))
+        rows.append((len(me.polygons), round(size.length, 2), o.name, round(o.matrix_world.to_scale().x, 4), [m.name for m in o.modifiers]))
+        ev.to_mesh_clear()
+    rows.sort(reverse=True)
+    log("HOLO total polys", sum(r[0] for r in rows))
+    for r in rows[:12]:
+        log("HOLO", r)
+    for r in sorted(rows, key=lambda r: -r[1])[:6]:
+        log("BIG", r)
+    sys.exit(0)
+
 if "debug" in opts:  # --debug <frame>: render that frame once per hidden group, to find what misbehaves
     groups = {
         "all": [],

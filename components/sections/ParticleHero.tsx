@@ -3,7 +3,7 @@
 /**
  * Scroll story hero: a tall track with a sticky viewport. A canvas scrubs the pre-rendered Blender frames by
  * scroll progress (read from a ref); DOM chapters (real, crawlable text) fade in and out on top. Native scroll, no hijacking.
- * Reduced motion or no WebGL: chapters render as a normal stacked section over a static glow.
+ * Reduced motion: chapters render as a normal stacked section over a static glow.
  */
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { gsap } from 'gsap'
@@ -43,10 +43,7 @@ const CHAPTERS: Chapter[] = [
 
 const REDUCED = '(prefers-reduced-motion: reduce)'
 const subscribe = (cb: () => void) => { const m = window.matchMedia(REDUCED); m.addEventListener('change', cb); return () => m.removeEventListener('change', cb) }
-const canAnimate = () => {
-  if (window.matchMedia(REDUCED).matches) return false
-  try { const c = document.createElement('canvas'); return !!(c.getContext('webgl2') || c.getContext('webgl')) } catch { return false }
-}
+const canAnimate = () => !window.matchMedia(REDUCED).matches
 
 export function ParticleHero() {
   const animated = useSyncExternalStore(subscribe, canAnimate, () => false)
