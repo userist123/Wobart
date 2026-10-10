@@ -475,6 +475,27 @@ scene.view_settings.look = "AgX - Punchy"
 scene.render.image_settings.file_format = "PNG"
 scene.render.use_motion_blur = False
 
+if "debug" in opts:  # --debug <frame>: render that frame once per hidden group, to find what misbehaves
+    groups = {
+        "all": [],
+        "nolights": [o for o in bpy.data.objects if o.type == "LIGHT"],
+        "nofloor": [floor],
+        "noholo": list(holo_root.children) + [c for e in layer_empties for c in e.children],
+        "noscan": [scan_plane],
+        "onlycar": [o for o in bpy.data.objects if o.type == "LIGHT"] + [floor, scan_plane] + list(holo_root.children) + [c for e in layer_empties for c in e.children],
+    }
+    scene.frame_set(int(opts["debug"]))
+    for name, objs in groups.items():
+        for o in objs:
+            o.hide_render = True
+        scene.render.filepath = os.path.join(OUT, f"debug-{name}.png")
+        bpy.ops.render.render(write_still=True)
+        log("RENDERED", scene.render.filepath)
+        for o in objs:
+            o.hide_render = False
+    log("ALL_DONE")
+    sys.exit(0)
+
 for f in range(F0, F1 + 1, STEP):
     scene.frame_set(f)
     scene.render.filepath = os.path.join(OUT, f"f{f:04d}.png")
