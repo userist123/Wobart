@@ -1,8 +1,9 @@
 'use client'
 
-import { Suspense, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import { ContactShadows, Environment, Lightformer, OrbitControls, useGLTF } from '@react-three/drei'
+import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
+import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor, useGLTF } from '@react-three/drei'
+import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import type { WrapColorContent, WrapFinish } from '@/lib/site-content'
 
@@ -15,6 +16,11 @@ type Target = {
   clearcoat: number
   clearcoatRoughness: number
   iridescence: number
+  iridescenceIOR: number
+  thicknessMin: number
+  thicknessMax: number
+  envMapIntensity: number
+  sheen: number
 }
 
 const WHITE = new THREE.Color('#ffffff')
@@ -22,17 +28,37 @@ const REDUCED_QUERY = '(prefers-reduced-motion: reduce)'
 
 function buildTarget(hex: string, finish: WrapFinish): Target {
   const color = new THREE.Color(hex)
+  const base = {
+    iridescence: 0,
+    iridescenceIOR: 1.3,
+    thicknessMin: 100,
+    thicknessMax: 400,
+    sheen: 0,
+  }
   switch (finish) {
     case 'matte':
-      return { color, roughness: 0.9, metalness: 0.05, clearcoat: 0, clearcoatRoughness: 0.5, iridescence: 0 }
+      return { ...base, color, roughness: 0.75, metalness: 0.05, clearcoat: 0, clearcoatRoughness: 0.5, envMapIntensity: 0.7 }
     case 'satin':
-      return { color, roughness: 0.45, metalness: 0.1, clearcoat: 0.5, clearcoatRoughness: 0.35, iridescence: 0 }
+      return { ...base, color, roughness: 0.35, metalness: 0.2, clearcoat: 0.6, clearcoatRoughness: 0.25, envMapIntensity: 1 }
     case 'chrome':
-      return { color: color.lerp(WHITE, 0.6), roughness: 0.06, metalness: 1, clearcoat: 0, clearcoatRoughness: 0.05, iridescence: 0 }
+      return { ...base, color: color.lerp(WHITE, 0.7), roughness: 0.04, metalness: 1, clearcoat: 0, clearcoatRoughness: 0.05, envMapIntensity: 1.6 }
     case 'color-shift':
-      return { color, roughness: 0.2, metalness: 0.3, clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 1 }
+      return {
+        ...base,
+        color,
+        roughness: 0.18,
+        metalness: 0.35,
+        clearcoat: 1,
+        clearcoatRoughness: 0.05,
+        iridescence: 1,
+        iridescenceIOR: 1.9,
+        thicknessMin: 140,
+        thicknessMax: 800,
+        envMapIntensity: 1.2,
+        sheen: 0.4,
+      }
     default:
-      return { color, roughness: 0.12, metalness: 0.15, clearcoat: 1, clearcoatRoughness: 0.05, iridescence: 0 }
+      return { ...base, color, roughness: 0.08, metalness: 0.25, clearcoat: 1, clearcoatRoughness: 0.03, envMapIntensity: 1.2 }
   }
 }
 
@@ -50,8 +76,14 @@ function useReducedMotion() {
 
 const DAMP = 6
 
+/** Materials that take the wrap colour: the Blender export names the body 'Wrap'; the Khronos CarConcept slots are 'Paint 1/2 *'. */
+const PAINT_NAME = /^(Wrap|Paint )/
+/** Car length in metres after auto-fit; the camera and floor are tuned for this. */
+const TARGET_LENGTH = 4.5
 const MODEL_URL = '/models/wob-car.glb'
-const GROUND_Y = -0.42
+const ENTRANCE_DAMP = 5
+const HDR_URL = '/hdri/studio_small_09_1k.hdr'
+const TARGET_Y = 0.5
 
 function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) {
   const target = useMemo(() => buildTarget(color.hex, color.finish), [color.hex, color.finish])
@@ -66,43 +98,77 @@ function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) 
       clearcoat: t.clearcoat,
       clearcoatRoughness: t.clearcoatRoughness,
       iridescence: t.iridescence,
-      iridescenceIOR: 1.8,
-      iridescenceThicknessRange: [120, 650],
+      iridescenceIOR: t.iridescenceIOR,
+      iridescenceThicknessRange: [t.thicknessMin, t.thicknessMax],
+      envMapIntensity: t.envMapIntensity,
+      sheen: t.sheen,
+      sheenRoughness: 0.5,
+      sheenColor: new THREE.Color('#ffffff'),
     })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const wrapRef = useRef(wrap)
+  const groupRef = useRef<THREE.Group>(null)
 
   const model = useMemo(() => {
     const root = scene.clone(true)
     root.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return
-      obj.castShadow = true
       const mat: THREE.Material | THREE.Material[] = obj.material
+      const isPaint = (m: THREE.Material) => PAINT_NAME.test(m.name)
       if (Array.isArray(mat)) {
-        obj.material = mat.map((m) => (m.name === 'Wrap' ? wrap : m))
-      } else if (mat.name === 'Wrap') {
+        obj.material = mat.map((m) => (isPaint(m) ? wrap : m))
+      } else if (isPaint(mat)) {
         obj.material = wrap
       }
+      // glass must not cast a hard shadow onto the interior
+      const first = Array.isArray(obj.material) ? obj.material[0] : obj.material
+      obj.castShadow = !(first instanceof THREE.MeshPhysicalMaterial && first.transmission > 0)
     })
-    return root
+    // auto-fit any model: long axis along X, centred, wheels on y = 0, normalised length
+    const box = new THREE.Box3().setFromObject(root)
+    const size = box.getSize(new THREE.Vector3())
+    const holder = new THREE.Group()
+    holder.add(root)
+    if (size.z > size.x) root.rotation.y = Math.PI / 2
+    holder.updateMatrixWorld(true)
+    const fitted = new THREE.Box3().setFromObject(holder)
+    const fittedSize = fitted.getSize(new THREE.Vector3())
+    const scale = TARGET_LENGTH / Math.max(fittedSize.x, 0.001)
+    const center = fitted.getCenter(new THREE.Vector3())
+    holder.scale.setScalar(scale)
+    holder.position.set(-center.x * scale, -fitted.min.y * scale, -center.z * scale)
+    return holder
   }, [scene, wrap])
 
   useEffect(() => () => wrap.dispose(), [wrap])
 
   useFrame((_, delta) => {
+    const dt = Math.min(delta, 0.1)
     const m = wrapRef.current
-    const k = reduced ? 1 : 1 - Math.exp(-DAMP * Math.min(delta, 0.1))
+    const k = reduced ? 1 : 1 - Math.exp(-DAMP * dt)
     m.color.lerp(target.color, k)
     m.roughness += (target.roughness - m.roughness) * k
     m.metalness += (target.metalness - m.metalness) * k
     m.clearcoat += (target.clearcoat - m.clearcoat) * k
     m.clearcoatRoughness += (target.clearcoatRoughness - m.clearcoatRoughness) * k
     m.iridescence += (target.iridescence - m.iridescence) * k
+    m.iridescenceIOR += (target.iridescenceIOR - m.iridescenceIOR) * k
+    m.iridescenceThicknessRange[0] += (target.thicknessMin - m.iridescenceThicknessRange[0]) * k
+    m.iridescenceThicknessRange[1] += (target.thicknessMax - m.iridescenceThicknessRange[1]) * k
+    m.envMapIntensity += (target.envMapIntensity - m.envMapIntensity) * k
+    m.sheen += (target.sheen - m.sheen) * k
+
+    const g = groupRef.current
+    if (g) {
+      const ke = reduced ? 1 : 1 - Math.exp(-ENTRANCE_DAMP * dt)
+      const s = g.scale.x + (1 - g.scale.x) * ke
+      g.scale.setScalar(s > 0.9995 ? 1 : s)
+    }
   })
 
   return (
-    <group position={[0, GROUND_Y, 0]}>
+    <group ref={groupRef} scale={0.96}>
       <primitive object={model} />
     </group>
   )
@@ -110,38 +176,85 @@ function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) 
 
 useGLTF.preload(MODEL_URL, false, true)
 
+function Effects() {
+  const capabilities = useThree((s) => s.gl.capabilities)
+  const [enabled] = useState(() => {
+    const smallHiDpi = window.devicePixelRatio > 2 && window.innerWidth < 1100
+    return !smallHiDpi && capabilities.maxTextureSize >= 4096
+  })
+  if (!enabled) return null
+  return (
+    <EffectComposer multisampling={0} enableNormalPass={false}>
+      <Bloom intensity={0.35} luminanceThreshold={0.85} mipmapBlur />
+      <Vignette eskil={false} offset={0.25} darkness={0.75} />
+    </EffectComposer>
+  )
+}
+
 export default function WrapConfigurator({ color, active, label }: Props) {
   const reduced = useReducedMotion()
+  const [dpr, setDpr] = useState<number | [number, number]>([1, 2])
+  const [interacted, setInteracted] = useState(false)
   return (
     <Canvas
-      dpr={[1, 2]}
+      dpr={dpr}
       frameloop={active ? 'always' : 'never'}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
-      camera={{ position: [4.2, 1.6, 5.2], fov: 32 }}
+      camera={{ position: [4.0, 1.2, 5.3], fov: 27 }}
       style={{ background: 'transparent' }}
       aria-label={label}
     >
-      <Suspense fallback={null}>
-        <ambientLight intensity={0.25} />
-        <directionalLight position={[4, 6, 3]} intensity={1.1} />
-        <Environment resolution={256} frames={1}>
-          <Lightformer form="rect" intensity={2.2} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[10, 6, 1]} />
-          <Lightformer form="rect" intensity={1.6} position={[-6, 1.5, 2]} rotation-y={Math.PI / 2} scale={[8, 2.5, 1]} />
-          <Lightformer form="rect" intensity={1.2} position={[6, 1, -3]} rotation-y={-Math.PI / 2} scale={[8, 2, 1]} />
-          <Lightformer form="ring" color="#E8FF00" intensity={0.6} position={[0, 2, -7]} scale={4} />
-        </Environment>
-        <Car color={color} reduced={reduced} />
-        <ContactShadows position={[0, GROUND_Y - 0.01, 0]} opacity={0.55} blur={2.4} scale={10} frames={1} />
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          minPolarAngle={Math.PI / 3.2}
-          maxPolarAngle={Math.PI / 2.05}
-          autoRotate={active && !reduced}
-          autoRotateSpeed={0.7}
-          makeDefault
-        />
-      </Suspense>
+      <PerformanceMonitor
+        flipflops={3}
+        onDecline={() => setDpr(1)}
+        onIncline={() => setDpr(Math.min(2, window.devicePixelRatio))}
+        onFallback={() => setDpr(1)}
+      >
+        <Suspense fallback={null}>
+          <ambientLight intensity={0.15} />
+          <directionalLight position={[4, 6, 3]} intensity={0.7} />
+          <Environment files={HDR_URL} background={false} environmentIntensity={0.9} resolution={256}>
+            <Lightformer form="rect" color="#eaf2ff" intensity={3} position={[0, 5, 0]} rotation-x={Math.PI / 2} scale={[12, 1.4, 1]} />
+            <Lightformer form="rect" color="#ffd9b0" intensity={2.4} position={[0, 2, -6]} scale={[10, 1.2, 1]} />
+            <Lightformer form="rect" color="#ffffff" intensity={1.2} position={[-6, 1.5, 2]} rotation-y={Math.PI / 2} scale={[8, 0.8, 1]} />
+          </Environment>
+          <Car color={color} reduced={reduced} />
+          <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0]}>
+            <circleGeometry args={[12, 64]} />
+            <MeshReflectorMaterial
+              blur={[300, 100]}
+              resolution={512}
+              mixBlur={1}
+              mixStrength={14}
+              roughness={1}
+              depthScale={1.1}
+              minDepthThreshold={0.4}
+              maxDepthThreshold={1.4}
+              color="#050506"
+              metalness={0}
+              envMapIntensity={0.12}
+              mirror={0.3}
+            />
+          </mesh>
+          <ContactShadows position={[0, 0.005, 0]} opacity={0.7} blur={2.6} scale={10} frames={1} />
+          <OrbitControls
+            enablePan={false}
+            enableZoom={false}
+            enableDamping
+            dampingFactor={0.08}
+            target={[0, TARGET_Y, 0]}
+            minPolarAngle={Math.PI / 3.1}
+            maxPolarAngle={Math.PI / 2.08}
+            minAzimuthAngle={-Infinity}
+            maxAzimuthAngle={Infinity}
+            autoRotate={active && !reduced && !interacted}
+            autoRotateSpeed={0.55}
+            onStart={() => setInteracted(true)}
+            makeDefault
+          />
+          {active && !reduced ? <Effects /> : null}
+        </Suspense>
+      </PerformanceMonitor>
     </Canvas>
   )
 }
