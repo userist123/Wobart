@@ -10,7 +10,7 @@ export function FaqSection() {
   const ref = useReveal<HTMLDivElement>()
   const { content } = useSiteContent()
   const faq = content.home.faq ?? defaultSiteContent.home.faq
-  const items = (faq?.items ?? []).filter((item) => item.active).sort((a, b) => a.sortOrder - b.sortOrder)
+  const items = (faq?.items ?? []).filter((item) => item.active && item.question.trim()).sort((a, b) => a.sortOrder - b.sortOrder)
 
   if (items.length === 0) return null
 

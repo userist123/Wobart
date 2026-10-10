@@ -118,6 +118,18 @@ export type SiteContent = {
   theme: { accent: string; background: string; surface: string; text: string; motionLevel: 'restrained' | 'expressive' | 'immersive' }
 }
 
+export const DEFAULT_WRAP_COLORS: WrapColorContent[] = [
+  { id: 'satin-black', name: 'Satin Black', hex: '#141414', finish: 'satin', active: true, sortOrder: 0 },
+  { id: 'gloss-midnight-blue', name: 'Gloss Midnight Blue', hex: '#0B1F4D', finish: 'gloss', active: true, sortOrder: 1 },
+  { id: 'matte-military-green', name: 'Matte Military Green', hex: '#3A4A2F', finish: 'matte', active: true, sortOrder: 2 },
+  { id: 'gloss-pearl-white', name: 'Gloss Pearl White', hex: '#EDEDE6', finish: 'gloss', active: true, sortOrder: 3 },
+  { id: 'chrome-silver', name: 'Brushed Chrome', hex: '#B9BEC4', finish: 'chrome', active: true, sortOrder: 4 },
+  { id: 'color-shift-aurora', name: 'Color-Shift Aurora', hex: '#5B2BD9', finish: 'color-shift', active: true, sortOrder: 5 },
+]
+
+export const DEFAULT_CONFIGURATOR: ConfiguratorContent = { eyebrow: '', title: '', body: '', posterUrl: '/images/hero-car.jpg', colors: DEFAULT_WRAP_COLORS }
+export const DEFAULT_FAQ: FaqContent = { eyebrow: '', title: '', body: '', items: [] }
+
 export const defaultSiteContent: SiteContent = {
   global: { brandName: 'WOB ART', tagline: '', phone: '', email: '', address: '', city: '', instagramUrl: '', facebookUrl: '', openingHours: '' },
   home: {
@@ -133,21 +145,8 @@ export const defaultSiteContent: SiteContent = {
     ],
     reviews: [],
     cta: { eyebrow: '', title: '', body: '', buttonLabel: 'Solicită ofertă', buttonHref: '#quote' },
-    configurator: {
-      eyebrow: '',
-      title: '',
-      body: '',
-      posterUrl: '/images/hero-car.jpg',
-      colors: [
-        { id: 'satin-black', name: 'Satin Black', hex: '#141414', finish: 'satin', active: true, sortOrder: 0 },
-        { id: 'gloss-midnight-blue', name: 'Gloss Midnight Blue', hex: '#0B1F4D', finish: 'gloss', active: true, sortOrder: 1 },
-        { id: 'matte-military-green', name: 'Matte Military Green', hex: '#3A4A2F', finish: 'matte', active: true, sortOrder: 2 },
-        { id: 'gloss-pearl-white', name: 'Gloss Pearl White', hex: '#EDEDE6', finish: 'gloss', active: true, sortOrder: 3 },
-        { id: 'chrome-silver', name: 'Brushed Chrome', hex: '#B9BEC4', finish: 'chrome', active: true, sortOrder: 4 },
-        { id: 'color-shift-aurora', name: 'Color-Shift Aurora', hex: '#5B2BD9', finish: 'color-shift', active: true, sortOrder: 5 },
-      ],
-    },
-    faq: { eyebrow: '', title: '', body: '', items: [] },
+    configurator: DEFAULT_CONFIGURATOR,
+    faq: DEFAULT_FAQ,
   },
   services: [],
   portfolio: [],

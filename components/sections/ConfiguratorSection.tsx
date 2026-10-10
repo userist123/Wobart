@@ -20,7 +20,7 @@ const FINISH_LABEL: Record<WrapFinish, string> = {
 const FINISH_ORDER: WrapFinish[] = ['gloss', 'matte', 'satin', 'chrome', 'color-shift']
 
 const FALLBACK_TITLE = 'ALEGE FINISAJUL.\nVEZI-L LIVE.'
-const FALLBACK_BODY = 'Schimbă culoarea și finisajul pe un model generic ca să îți formezi direcția. Finisajul real se alege pe mostre fizice, în atelier.'
+const FALLBACK_BODY = 'Schimbă culoarea și finisajul pe un model generic ca să îți formezi direcția. Finisajul final se stabilește împreună, la evaluarea vehiculului.'
 
 function swatchBackground(hex: string, finish: WrapFinish): string {
   if (finish === 'chrome') return `linear-gradient(135deg, #ffffff 0%, ${hex} 38%, #3a3a3a 62%, #f2f2f2 100%)`
@@ -95,7 +95,7 @@ export function ConfiguratorSection() {
     <section id="configurator" className="section section-carbon configurator-section">
       <div className="section-shell">
         <div ref={headingRef} className="section-heading reveal">
-          <p className="eyebrow">{cfg.eyebrow || '03 / CONFIGURATOR'}</p>
+          <p className="eyebrow">{cfg.eyebrow || '02B / CONFIGURATOR'}</p>
           <h2 className="section-title">
             {titleLines.map((line, i) => (
               <Fragment key={i}>
@@ -120,9 +120,10 @@ export function ConfiguratorSection() {
               <>
                 <Image
                   src={cfg.posterUrl || '/images/hero-car.jpg'}
-                  alt="Mașină sport pregătită pentru wrap, fotografie de atelier"
+                  alt="Previzualizare statică a configuratorului"
                   fill
                   sizes="(max-width: 900px) 100vw, 60vw"
+                  unoptimized={/^https?:\/\//i.test(cfg.posterUrl)}
                   className="configurator-poster"
                 />
                 <div className="configurator-tint" style={{ backgroundColor: selected.hex }} />

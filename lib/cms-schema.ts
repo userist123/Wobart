@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { DEFAULT_CONFIGURATOR, DEFAULT_FAQ } from './site-content'
 
 const stringArray = z.array(z.string().trim()).default([])
 
@@ -52,15 +53,15 @@ export const configuratorContentSchema = z.object({
   title: z.string().default(''),
   body: z.string().default(''),
   posterUrl: z.string().default(''),
-  colors: z.array(wrapColorContentSchema).default([]),
-}).default({ eyebrow: '', title: '', body: '', posterUrl: '', colors: [] })
+  colors: z.array(wrapColorContentSchema).default(() => structuredClone(DEFAULT_CONFIGURATOR.colors)),
+}).default(() => structuredClone(DEFAULT_CONFIGURATOR))
 
 export const faqContentSchema = z.object({
   eyebrow: z.string().default(''),
   title: z.string().default(''),
   body: z.string().default(''),
   items: z.array(faqItemContentSchema).default([]),
-}).default({ eyebrow: '', title: '', body: '', items: [] })
+}).default(() => structuredClone(DEFAULT_FAQ))
 
 export const siteContentSchema = z.object({
   global: z.object({

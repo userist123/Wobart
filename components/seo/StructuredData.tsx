@@ -30,16 +30,7 @@ export function buildStructuredData(content: SiteContent): object {
   if (g.openingHours) business.openingHours = g.openingHours
   if (seo.description) business.description = seo.description
 
-  const reviews = home.reviews ?? []
-  if (reviews.length > 0) {
-    const mean = reviews.reduce((sum, r) => sum + r.stars, 0) / reviews.length
-    business.aggregateRating = {
-      '@type': 'AggregateRating',
-      ratingValue: Math.round(mean * 10) / 10,
-      reviewCount: reviews.length,
-      bestRating: 5,
-    }
-  }
+  // No aggregateRating: self-serving testimonials are ineligible for LocalBusiness review markup.
   graph.push(business)
 
   for (const service of services.filter((s) => s.active)) {
@@ -54,7 +45,7 @@ export function buildStructuredData(content: SiteContent): object {
     graph.push(node)
   }
 
-  const faqItems = (home.faq ?? defaultSiteContent.home.faq)?.items.filter((i) => i.active) ?? []
+  const faqItems = (home.faq ?? defaultSiteContent.home.faq)?.items.filter((i) => i.active && i.question.trim() && i.answer.trim()) ?? []
   if (faqItems.length > 0) {
     graph.push({
       '@type': 'FAQPage',

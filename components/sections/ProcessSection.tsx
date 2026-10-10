@@ -20,6 +20,7 @@ export function ProcessSection() {
   ]
 
   const visible = steps.slice(0, 6)
+  const visibleKey = visible.join('\u0000')
 
   useEffect(() => {
     const list = listRef.current
@@ -35,7 +36,7 @@ export function ProcessSection() {
     )
     rows.forEach((row) => observer.observe(row))
     return () => observer.disconnect()
-  }, [visible.length])
+  }, [visibleKey])
 
   const activeIndex = Math.min(active, visible.length - 1)
   const activeNumber = String(activeIndex + 1).padStart(2, '0')
