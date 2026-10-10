@@ -22,6 +22,7 @@ import './wob-art-configurator.css'
 import './wob-art-faq.css'
 import './wob-art-whatsapp.css'
 import './wob-art-v2.css'
+import './wob-art-particle-hero.css'
 
 const unbounded = Unbounded({ weight: ['600', '700', '900'], subsets: ['latin'], variable: '--font-unbounded', display: 'swap' })
 const outfit = Outfit({ weight: ['300', '400', '500', '600'], subsets: ['latin'], variable: '--font-outfit', display: 'swap' })

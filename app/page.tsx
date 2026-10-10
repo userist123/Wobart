@@ -1,6 +1,6 @@
 // WOB ART — Homepage — v8 clean
 import { Navbar } from '@/components/sections/Navbar'
-import { HeroSection } from '@/components/sections/HeroSection'
+import { ParticleHero } from '@/components/sections/ParticleHero'
 import { TrustBar } from '@/components/sections/TrustBar'
 import { BrandStatementSection } from '@/components/sections/BrandStatementSection'
 import { ServicesSection } from '@/components/sections/ServicesSection'
@@ -12,7 +12,6 @@ import { ReviewsSection } from '@/components/sections/ReviewsSection'
 import { QuoteForm } from '@/components/sections/QuoteForm'
 import { CtaSection } from '@/components/sections/CtaSection'
 import { Footer } from '@/components/sections/Footer'
-import { ConfiguratorSection } from '@/components/sections/ConfiguratorSection'
 import { FaqSection } from '@/components/sections/FaqSection'
 import { StructuredData } from '@/components/seo/StructuredData'
 import { WhatsAppCta } from '@/components/ui/WhatsAppCta'
@@ -23,11 +22,10 @@ export default function HomePage() {
     <main id="top" className="site-main">
       <Cursor />
       <Navbar />
-      <HeroSection />
+      <ParticleHero />
       <TrustBar />
       <BrandStatementSection />
       <ServicesSection />
-      <ConfiguratorSection />
       <BeforeAfterSection />
       <PortfolioSection />
       <ProcessSection />
