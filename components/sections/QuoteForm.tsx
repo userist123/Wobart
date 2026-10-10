@@ -1,12 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { ArrowUpRight, Check } from 'lucide-react'
 import { MagneticButton } from '@/components/ui/MagneticButton'
+import { useReveal } from '@/hooks/useReveal'
 
 const SERVICII_LISTA = ['Wrap Complet', 'PPF', 'Wrap Parțial', 'Cromate & Accente', 'Wrap Interior']
 const FINISAJE_LISTA = ['Gloss Negru', 'Matte Midnight Blue', 'Satin Oțel Periat', 'Ștergere Crom', 'Color-Shift Cameleon']
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
+
+function Reveal({ children, delay = 0, className = '', as = 'div' }: { children: ReactNode; delay?: number; className?: string; as?: 'div' | 'li' }) {
+  const ref = useReveal<HTMLElement>({ delay })
+  const cls = `reveal ${className}`.trim()
+  return as === 'li' ? <li ref={ref as React.RefObject<HTMLLIElement>} className={cls}>{children}</li> : <div ref={ref as React.RefObject<HTMLDivElement>} className={cls}>{children}</div>
+}
 
 export function QuoteForm() {
   const [submitted, setSubmitted] = useState(false)
@@ -58,7 +65,7 @@ export function QuoteForm() {
   const Camp = ({ name, label, type = 'text', placeholder = '' }: { name: string; label: string; type?: string; placeholder?: string }) => (
     <div className="quote-field">
       <label htmlFor={name}>{label}</label>
-      <input id={name} name={name} type={type} placeholder={placeholder} onChange={() => errors[name] && setErrors(prev => { const next = { ...prev }; delete next[name]; return next })} />
+      <input className="solid" id={name} name={name} type={type} placeholder={placeholder} onChange={() => errors[name] && setErrors(prev => { const next = { ...prev }; delete next[name]; return next })} />
       {errors[name] && <p className="quote-error">{errors[name]}</p>}
     </div>
   )
@@ -68,15 +75,16 @@ export function QuoteForm() {
       <div className="quote-gridline" aria-hidden="true" />
       <div className="section-shell quote-layout-premium">
         <div className="quote-intro">
-          <span className="quote-index">07 / PROJECT BRIEF</span>
+          <Reveal><span className="quote-index">07 / PROJECT BRIEF</span>
           <p className="eyebrow">Contact</p>
           <h2>GATA SĂ<br /><span>TRANSFORMI?</span></h2>
-          <p className="body-copy">Trimite-ne direcția proiectului. Îți răspundem cu pașii potriviți pentru mașina ta.</p>
-          <ul>{['Consultație gratuită', 'Răspuns în aceeași zi', 'Fără angajament'].map(t => <li key={t}><span aria-hidden="true"><Check size={12} /></span>{t}</li>)}</ul>
-          <div className="quote-contact-meta"><span>BUCHAREST / RO</span><span>contact@wobart.ro</span></div>
+          <p className="body-copy">Trimite-ne direcția proiectului. Îți răspundem cu pașii potriviți pentru mașina ta.</p></Reveal>
+          <ul>{['Consultație gratuită', 'Răspuns în aceeași zi', 'Fără angajament'].map((t, i) => <Reveal as="li" key={t} delay={(i + 1) * 80}><span aria-hidden="true"><Check size={12} /></span>{t}</Reveal>)}</ul>
+          <Reveal delay={320} className="quote-contact-meta"><span>BUCHAREST / RO</span><span>contact@wobart.ro</span></Reveal>
         </div>
 
-        <div className="quote-form-panel">
+        <Reveal delay={80} className="quote-form-reveal">
+        <div className="quote-form-panel glass">
           {submitted ? (
             <div className="quote-success" role="status" aria-live="polite">
               <div className="quote-success-mark" aria-hidden="true"><Check size={25} /></div>
@@ -89,15 +97,16 @@ export function QuoteForm() {
               <div className="quote-form-header"><span>WOB / PROJECT DATA</span><span>01—04</span></div>
               <div className="quote-form-grid"><Camp name="name" label="Nume complet" placeholder="Ion Popescu" /><Camp name="email" label="Email" type="email" placeholder="ion@email.ro" /><Camp name="phone" label="Telefon" type="tel" placeholder="+40 7xx xxx xxx" /></div>
               <div className="quote-form-grid quote-form-grid-car"><Camp name="car_brand" label="Marcă" placeholder="BMW" /><Camp name="car_model" label="Model" placeholder="M4" /><Camp name="car_year" label="An" placeholder="2024" /></div>
-              <fieldset><legend>Serviciu dorit</legend><div className="quote-choice-grid">{SERVICII_LISTA.map(s => <button key={s} type="button" onClick={() => { setServiciu(s); setErrors(prev => { const next = { ...prev }; delete next.serviciu; return next }) }} className={serviciu === s ? 'quote-choice is-active' : 'quote-choice'} aria-pressed={serviciu === s}>{s}</button>)}</div>{errors.serviciu && <p className="quote-error">{errors.serviciu}</p>}</fieldset>
-              <fieldset><legend>Finisaj dorit</legend><div className="quote-choice-grid quote-finish-grid">{FINISAJE_LISTA.map(f => <button key={f} type="button" onClick={() => setFinisaj(f)} className={finisaj === f ? 'quote-choice is-active' : 'quote-choice'} aria-pressed={finisaj === f}>{f}</button>)}</div></fieldset>
-              <div className="quote-field quote-message"><label htmlFor="message">Mesaj</label><textarea id="message" name="message" rows={3} placeholder="Detalii despre vehicul sau direcția dorită..." /></div>
+              <fieldset><legend>Serviciu dorit</legend><div className="quote-choice-grid">{SERVICII_LISTA.map(s => <button key={s} type="button" onClick={() => { setServiciu(s); setErrors(prev => { const next = { ...prev }; delete next.serviciu; return next }) }} className={serviciu === s ? 'chip quote-choice is-active' : 'chip quote-choice'} aria-pressed={serviciu === s}>{s}</button>)}</div>{errors.serviciu && <p className="quote-error">{errors.serviciu}</p>}</fieldset>
+              <fieldset><legend>Finisaj dorit</legend><div className="quote-choice-grid quote-finish-grid">{FINISAJE_LISTA.map(f => <button key={f} type="button" onClick={() => setFinisaj(f)} className={finisaj === f ? 'chip quote-choice is-active' : 'chip quote-choice'} aria-pressed={finisaj === f}>{f}</button>)}</div></fieldset>
+              <div className="quote-field quote-message"><label htmlFor="message">Mesaj</label><textarea className="solid" id="message" name="message" rows={3} placeholder="Detalii despre vehicul sau direcția dorită..." /></div>
               <div className="quote-upload"><label htmlFor="photos">Fotografii <span>OPȚIONAL</span></label><input id="photos" type="file" accept="image/*" multiple onChange={e => setPhotoNames(Array.from(e.target.files ?? []).map(file => file.name))} />{photoNames.length > 0 && <p>{photoNames.length} fișier(e) selectat(e). Storage-ul foto va fi conectat separat.</p>}</div>
               {serverError && <p className="quote-error" role="alert">{serverError}</p>}
               <div className="quote-submit-row"><span>DATELE SUNT TRATATE CA BRIEF DE PROIECT.</span><MagneticButton variant="accent" size="lg" type="submit" disabled={submitting}>{submitting ? 'SE TRIMITE...' : <>TRIMITE CEREREA <ArrowUpRight size={15} /></>}</MagneticButton></div>
             </form>
           )}
         </div>
+        </Reveal>
       </div>
     </section>
   )

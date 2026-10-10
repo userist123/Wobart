@@ -1,10 +1,16 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { Plus } from 'lucide-react'
 import { MagneticButton } from '@/components/ui/MagneticButton'
 import { useReveal } from '@/hooks/useReveal'
 import { useSiteContent } from '@/hooks/useSiteContent'
 import { defaultSiteContent } from '@/lib/site-content'
+
+function RevealDetails({ children, delay }: { children: ReactNode; delay: number }) {
+  const ref = useReveal<HTMLDivElement>({ delay })
+  return <div ref={ref} className="reveal faq-reveal">{children}</div>
+}
 
 export function FaqSection() {
   const ref = useReveal<HTMLDivElement>()
@@ -36,14 +42,16 @@ export function FaqSection() {
         </div>
         <div className="faq-list">
           {items.map((item, index) => (
-            <details key={`${index}-${item.question}`} className="faq-item" name="faq">
+            <RevealDetails key={`${index}-${item.question}`} delay={Math.min(index, 6) * 80}>
+            <details className="faq-item glass" name="faq">
               <summary>
                 <span className="faq-index">{String(index + 1).padStart(2, '0')}</span>
                 <span className="faq-question">{item.question}</span>
-                <Plus className="faq-icon" size={20} aria-hidden="true" />
+                <span className="faq-icon-wrap glass" aria-hidden="true"><Plus className="faq-icon" size={16} /></span>
               </summary>
               <div className="faq-answer"><p className="body-copy">{item.answer}</p></div>
             </details>
+            </RevealDetails>
           ))}
         </div>
         <div className="section-cta-row">

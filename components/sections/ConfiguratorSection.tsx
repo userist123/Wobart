@@ -50,6 +50,8 @@ export function ConfiguratorSection() {
   const { content } = useSiteContent()
   const cfg = content.home.configurator ?? defaultSiteContent.home.configurator
   const headingRef = useReveal<HTMLDivElement>()
+  const stageRevealRef = useReveal<HTMLDivElement>({ delay: 80 })
+  const controlsRevealRef = useReveal<HTMLDivElement>({ delay: 160 })
   const stageRef = useRef<HTMLDivElement>(null)
   const [selectedId, setSelectedId] = useState('')
   const [filter, setFilter] = useState<WrapFinish | 'all'>('all')
@@ -118,6 +120,7 @@ export function ConfiguratorSection() {
         </div>
 
         <div className="configurator-layout">
+          <div ref={stageRevealRef} className="reveal configurator-stage-wrap">
           <div
             ref={stageRef}
             className="configurator-stage"
@@ -152,8 +155,10 @@ export function ConfiguratorSection() {
             )}
             <span className="configurator-stage-frame" aria-hidden="true" />
           </div>
+          </div>
 
-          <div className="configurator-controls">
+          <div ref={controlsRevealRef} className="reveal configurator-controls">
+          <div className="configurator-panel glass">
             <fieldset className="configurator-fieldset">
               <legend className="eyebrow">Culoare și finisaj</legend>
 
@@ -163,7 +168,7 @@ export function ConfiguratorSection() {
                   <button
                     key={f}
                     type="button"
-                    className="configurator-filter"
+                    className="configurator-filter chip"
                     aria-pressed={filter === f}
                     onClick={() => applyFilter(f)}
                   >
@@ -220,6 +225,7 @@ export function ConfiguratorSection() {
               Randare orientativă pe un model generic — nu reprezintă un vehicul sau o folie anume. Model 3D: „Car Concept” © 2024 Darmstadt Graphics Group GmbH / Eric Chadwick,{' '}
               <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (bază CC0 de Unity Fan), via Khronos glTF-Sample-Assets.
             </p>
+          </div>
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { ArrowRight, Info } from 'lucide-react'
 import { MagneticButton } from '@/components/ui/MagneticButton'
+import { useReveal } from '@/hooks/useReveal'
 
 const MARCI = ['BMW', 'Mercedes', 'Audi', 'Porsche', 'Range Rover', 'Tesla', 'Ferrari', 'Lamborghini', 'Volkswagen', 'Skoda']
 const SERVICII = ['Wrap Complet', 'PPF', 'Wrap Parțial', 'Accente'] as const
@@ -15,6 +16,14 @@ const FINISAJE = [
 ]
 const BAZA: Record<string, number> = { 'Wrap Complet': 2800, PPF: 2000, 'Wrap Parțial': 1200, Accente: 500 }
 const MULT: Record<string, number> = { Gloss: 1, Matte: 1.05, Satin: 1.1, Crom: 1.35, 'Color-Shift': 1.5 }
+
+function Reveal({ children, delay = 0, className = '' }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useReveal<HTMLDivElement>({ delay })
+  return <div ref={ref} className={`reveal ${className}`.trim()}>{children}</div>
+}
+
+const ALL_MIN = Math.min(...Object.values(BAZA)) * Math.min(...Object.values(MULT))
+const ALL_MAX = Math.max(...Object.values(BAZA)) * Math.max(...Object.values(MULT)) * 1.45
 
 export function EstimatorSection() {
   const [marca, setMarca] = useState('')
@@ -30,19 +39,23 @@ export function EstimatorSection() {
     }
   }, [serviciu, finisaj])
 
+  const barStart = ((range.min - ALL_MIN) / (ALL_MAX - ALL_MIN)) * 100
+  const barWidth = Math.max(((range.max - range.min) / (ALL_MAX - ALL_MIN)) * 100, 4)
+
   return (
     <section id="estimator" className="section section-carbon estimator-section">
       <div className="section-shell">
-        <div className="section-heading">
+        <Reveal className="section-heading">
           <p className="eyebrow">06 / ESTIMATOR</p>
           <h2 className="section-title">VEZI DIRECȚIA<br /><span>DE BUGET.</span></h2>
           <p className="body-copy max-w-2xl">Alege o configurație de bază pentru a vedea o plajă orientativă. Oferta finală se stabilește după evaluarea vehiculului.</p>
-        </div>
+        </Reveal>
 
-        <div className="estimator-layout">
+        <Reveal delay={80} className="estimator-reveal">
+        <div className="estimator-layout glass">
           <div className="estimator-controls">
-            <label>Marca vehiculului
-              <select value={marca} onChange={e => setMarca(e.target.value)}>
+            <label className="estimator-field">Marca vehiculului
+              <select className="solid" value={marca} onChange={e => setMarca(e.target.value)}>
                 <option value="">Selectează marca</option>
                 {MARCI.map(m => <option key={m} value={m}>{m}</option>)}
               </select>
@@ -51,14 +64,14 @@ export function EstimatorSection() {
             <fieldset>
               <legend>Serviciu</legend>
               <div className="choice-grid">
-                {SERVICII.map(s => <button type="button" key={s} onClick={() => setServiciu(s)} className={serviciu === s ? 'choice is-active' : 'choice'} aria-pressed={serviciu === s}>{s}</button>)}
+                {SERVICII.map(s => <button type="button" key={s} onClick={() => setServiciu(s)} className={serviciu === s ? 'chip choice is-active' : 'chip choice'} aria-pressed={serviciu === s}>{s}</button>)}
               </div>
             </fieldset>
 
             <fieldset>
               <legend>Finisaj</legend>
               <div className="finish-grid">
-                {FINISAJE.map(f => <button type="button" key={f.label} onClick={() => setFinisaj(f.label)} className={finisaj === f.label ? 'finish-choice is-active' : 'finish-choice'} aria-pressed={finisaj === f.label}><span style={{ background: f.color, borderColor: f.border }} />{f.label}</button>)}
+                {FINISAJE.map(f => <button type="button" key={f.label} onClick={() => setFinisaj(f.label)} className={finisaj === f.label ? 'chip finish-choice is-active' : 'chip finish-choice'} aria-pressed={finisaj === f.label}><span style={{ background: f.color, borderColor: f.border }} />{f.label}</button>)}
               </div>
             </fieldset>
           </div>
@@ -72,12 +85,14 @@ export function EstimatorSection() {
             </div>
             <div className="summary-price">
               <span>Plajă orientativă</span>
-              <strong>€{range.min.toLocaleString('ro-RO')} — €{range.max.toLocaleString('ro-RO')}</strong>
+              <strong><i>€</i>{range.min.toLocaleString('ro-RO')} — <i>€</i>{range.max.toLocaleString('ro-RO')}</strong>
+              <div className="summary-bar" aria-hidden="true"><span style={{ left: `${barStart}%`, width: `${barWidth}%` }} /></div>
             </div>
             <p className="summary-note">Calculul este orientativ și nu înlocuiește inspecția vehiculului.</p>
             <MagneticButton variant="accent" size="lg" href="#quote">Cere oferta exactă <ArrowRight size={15} /></MagneticButton>
           </aside>
         </div>
+        </Reveal>
       </div>
     </section>
   )

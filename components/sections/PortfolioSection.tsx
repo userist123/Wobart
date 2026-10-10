@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, ArrowUpRight, X } from 'lucide-react'
 import Image from 'next/image'
 import { PORTFOLIO } from '@/lib/constants'
@@ -20,12 +20,18 @@ function matchesFilter(item: PortfolioItem, filter: Filter) {
   return value.includes('wrap')
 }
 
+function RevealTile({ index, children }: { index: number; children: ReactNode }) {
+  const ref = useReveal<HTMLDivElement>({ delay: 80 * (index % 6) })
+  return <div ref={ref} className="reveal portfolio-tile">{children}</div>
+}
+
 export function PortfolioSection() {
   const [expanded, setExpanded] = useState<number | null>(null)
   const [filter, setFilter] = useState<Filter>('Toate')
   const [galleryIndex, setGalleryIndex] = useState(0)
   const [cmsItems, setCmsItems] = useState<PortfolioContent[]>([])
   const headRef = useReveal<HTMLDivElement>()
+  const filterRef = useReveal<HTMLDivElement>({ delay: 80 })
   const modalRef = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const triggerRef = useRef<HTMLElement | null>(null)
@@ -101,15 +107,15 @@ export function PortfolioSection() {
           <p className="body-copy heading-note">Portofoliul este administrabil din Website Studio. Publicarea se face prin CMS, fără recompilarea componentelor de conținut.</p>
         </div>
 
-        <div className="portfolio-filter-bar" role="tablist" aria-label="Filtrează portofoliul">
+        <div ref={filterRef} className="reveal portfolio-filter-bar" role="tablist" aria-label="Filtrează portofoliul">
           <div className="portfolio-filter-label"><span>SELECTED WORK</span><strong>{String(visibleItems.length).padStart(2, '0')}</strong></div>
           <div className="portfolio-filters">{FILTERS.map((value) => <button key={value} type="button" role="tab" aria-selected={filter === value} className={filter === value ? 'is-active' : ''} onClick={() => { setFilter(value); setExpanded(null) }}>{value}</button>)}</div>
         </div>
 
-        <div className="portfolio-grid">{visibleItems.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <button key={entry.id} onClick={(event) => { triggerRef.current = event.currentTarget; setExpanded(index) }} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW" aria-label={`Vezi proiectul ${entry.title || entry.vehicle}`}>
+        <div className="portfolio-grid">{visibleItems.map((entry, index) => { const imageSrc = entry.coverUrl || '/images/hero-car.jpg'; return <RevealTile key={entry.id} index={index}><button onClick={(event) => { triggerRef.current = event.currentTarget; setExpanded(index) }} className={`portfolio-card portfolio-card-${(index % 4) + 1}`} data-cursor="VIEW" aria-label={`Vezi proiectul ${entry.title || entry.vehicle}`}>
           <Image src={imageSrc} alt={entry.title || entry.vehicle} fill sizes="(max-width: 768px) 100vw, 50vw" unoptimized={/^https?:\/\//i.test(imageSrc)} className="object-cover" />
-          <div className="portfolio-overlay" /><div className="portfolio-meta"><span>{entry.service}</span><strong>{entry.title}</strong><small>{entry.finish || entry.material}</small></div><ArrowUpRight className="portfolio-icon" size={18} aria-hidden="true" />
-        </button> })}</div>
+          <div className="portfolio-overlay" /><div className="portfolio-meta"><span className="chip">{entry.service}</span><div className="portfolio-caption"><strong>{entry.title}</strong><small>{entry.finish || entry.material}</small></div></div><ArrowUpRight className="portfolio-icon" size={18} aria-hidden="true" />
+        </button></RevealTile> })}</div>
         <div className="section-cta-row"><span className="mono-note">SELECTED WORK / {String(visibleItems.length).padStart(2, '0')} PROJECTS</span><a href="#quote" className="text-link">Vreau ceva similar <ArrowUpRight size={14} /></a></div>
       </div>
 

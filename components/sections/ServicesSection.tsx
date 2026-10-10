@@ -12,6 +12,9 @@ export function ServicesSection() {
   const [active, setActive] = useState(0)
   const [cmsServices, setCmsServices] = useState<ServiceContent[]>([])
   const headRef = useReveal<HTMLDivElement>()
+  const listRevealRef = useReveal<HTMLDivElement>({ delay: 80 })
+  const stageRevealRef = useReveal<HTMLDivElement>({ delay: 160 })
+  const ctaRef = useReveal<HTMLDivElement>({ delay: 240 })
 
   useEffect(() => {
     fetch('/api/content', { cache: 'no-store' })
@@ -45,6 +48,7 @@ export function ServicesSection() {
           <div className="heading-note"><p className="body-copy">Nu alegem o folie dintr-un catalog și atât. Alegem materialul, finisajul și metoda de execuție în funcție de mașină și de rezultatul urmărit.</p><span className="services-heading-mark">MATERIAL / FIT / FINISH / CONTROL</span></div>
         </div>
         <div className="services-layout">
+          <div ref={listRevealRef} className="reveal services-side">
           <div className="services-list" role="tablist" aria-label="Servicii WOB ART">
             {items.map((item, i) => {
               const selected = activeIndex === i
@@ -81,7 +85,7 @@ export function ServicesSection() {
                       requestAnimationFrame(() => document.getElementById(`service-tab-${last}`)?.focus())
                     }
                   }}
-                  className={`service-row ${selected ? 'is-active' : ''}`}
+                  className={`service-row glass glass-hover ${selected ? 'is-active' : ''}`}
                 >
                   <span className="service-num">{String(i + 1).padStart(2, '0')}</span>
                   <span className="service-title-wrap"><strong>{item.name}</strong><small>{item.eyebrow}</small></span>
@@ -90,20 +94,23 @@ export function ServicesSection() {
               )
             })}
           </div>
-          {svc && <div id="service-panel" className="service-stage" role="tabpanel" aria-labelledby={`service-tab-${activeIndex}`}>
+          </div>
+          <div ref={stageRevealRef} className="reveal services-feature">
+          {svc && <div id="service-panel" className="service-stage glass" role="tabpanel" aria-labelledby={`service-tab-${activeIndex}`}>
             <Image key={imageSrc} src={imageSrc} alt={svc.name} fill sizes="(max-width: 900px) 100vw, 64vw" unoptimized={isRemoteImage} className="object-cover service-stage-image" />
             <div className="service-stage-overlay" />
-            <div className="service-stage-top"><span>{String(activeIndex + 1).padStart(2, '0')}</span><span>WOB / MATERIAL LAB</span><span>{svc.slug}</span></div>
+            <div className="service-stage-top"><span className="chip is-active">{String(activeIndex + 1).padStart(2, '0')}</span><span className="chip">WOB / MATERIAL LAB</span></div>
             <div className="service-stage-content">
               <div className="service-stage-heading"><span className="eyebrow">{svc.eyebrow}</span><h3>{svc.name}</h3><p>{svc.description}</p></div>
               <div className="service-stage-details">
-                <div><span className="eyebrow">Include</span><ul>{svc.benefits.slice(0, 4).map((x) => <li key={x}><Check size={13} />{x}</li>)}</ul></div>
-                <div className="service-stage-materials"><span className="eyebrow">Material</span><strong>{svc.materials.length ? svc.materials.slice(0, 2).join(' / ') : 'SELECTED BY APPLICATION'}</strong><small>{svc.process.length ? svc.process[0] : 'EXECUȚIE ADAPTATĂ PROIECTULUI'}</small></div>
+                <div><span className="eyebrow">Include</span><ul>{svc.benefits.slice(0, 4).map((x) => <li key={x}><Check size={14} />{x}</li>)}</ul></div>
+                <div className="service-stage-materials"><span className="eyebrow">Material</span><div className="service-chips">{(svc.materials.length ? svc.materials.slice(0, 3) : ['SELECTED BY APPLICATION']).map((m) => <span key={m} className="chip">{m}</span>)}</div><small>{svc.process.length ? svc.process[0] : 'EXECUȚIE ADAPTATĂ PROIECTULUI'}</small></div>
               </div>
             </div>
           </div>}
+          </div>
         </div>
-        <div className="section-cta-row"><span className="mono-note">{String(items.length).padStart(2, '0')} DIRECȚII / UN SINGUR STANDARD</span><MagneticButton variant="outline" size="md" href="#quote">Discută proiectul tău</MagneticButton></div>
+        <div ref={ctaRef} className="reveal section-cta-row"><span className="mono-note">{String(items.length).padStart(2, '0')} DIRECȚII / UN SINGUR STANDARD</span><MagneticButton variant="outline" size="md" href="#quote">Discută proiectul tău</MagneticButton></div>
       </div>
     </section>
   )

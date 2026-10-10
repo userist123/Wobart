@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import { ChevronsLeftRight } from 'lucide-react'
 
 interface BeforeAfterProps {
   before: string
@@ -39,7 +40,7 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
   return (
     <div
       ref={containerRef}
-      className="before-after-card relative w-full aspect-[560/380] overflow-hidden select-none cursor-ew-resize"
+      className="before-after-card glass relative w-full aspect-[560/380] overflow-hidden select-none cursor-ew-resize"
       data-cursor="DRAG"
       role="slider"
       aria-label={label || 'Comparație înainte și după'}
@@ -76,15 +77,13 @@ export function BeforeAfter({ before, after, label }: BeforeAfterProps) {
       </div>
       <div className="before-after-divider absolute top-0 bottom-0 w-px pointer-events-none" style={{ left: `${pct}%` }}>
         <div className="before-after-handle absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-          <span aria-hidden="true">↔</span>
+          <ChevronsLeftRight size={18} strokeWidth={1.75} aria-hidden="true" />
         </div>
       </div>
-      <div className="before-after-corner before-after-corner-tl" aria-hidden="true" />
-      <div className="before-after-corner before-after-corner-br" aria-hidden="true" />
-      <span className="before-after-label before-after-label-before">Before</span>
-      <span className="before-after-label before-after-label-after">After</span>
+      <span className="before-after-label before-after-label-before chip" aria-hidden="true">ÎNAINTE</span>
+      <span className="before-after-label before-after-label-after chip is-active" aria-hidden="true">DUPĂ</span>
       {label && <span className="before-after-caption">{label}</span>}
-      <span className="before-after-hint" aria-hidden="true">DRAG</span>
+      <span className="before-after-hint chip" aria-hidden="true">DRAG</span>
     </div>
   )
 }

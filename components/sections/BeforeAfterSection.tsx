@@ -1,5 +1,6 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { useReveal } from '@/hooks/useReveal'
 import { BeforeAfter } from '@/components/ui/BeforeAfter'
@@ -10,6 +11,11 @@ const FALLBACK_TRANSFORMATIONS = [
   { before: '/images/ba-before-2.jpg', after: '/images/ba-after-2.jpg', label: 'Audi A4 — Satin Midnight Blue', active: true, sortOrder: 1 },
   { before: '/images/ba-before-3.jpg', after: '/images/ba-after-3.jpg', label: 'Porsche Cayenne — Gloss Auriu', active: true, sortOrder: 2 },
 ]
+
+function RevealItem({ index, children }: { index: number; children: ReactNode }) {
+  const ref = useReveal<HTMLDivElement>({ delay: 80 * (index + 1) })
+  return <div ref={ref} className="reveal before-after-item">{children}</div>
+}
 
 export function BeforeAfterSection() {
   const headRef = useReveal<HTMLDivElement>()
@@ -27,7 +33,7 @@ export function BeforeAfterSection() {
           <p className="body-copy heading-note">Trage cursorul prin imagine. Aici se vede diferența dintre o simplă schimbare și o transformare controlată.</p>
         </div>
         <div className="before-after-grid">
-          {visibleTransformations.map(item => <BeforeAfter key={`${item.label}-${item.sortOrder}`} before={item.before} after={item.after} label={item.label} />)}
+          {visibleTransformations.map((item, index) => <RevealItem key={`${item.label}-${item.sortOrder}`} index={index}><BeforeAfter before={item.before} after={item.after} label={item.label} /></RevealItem>)}
         </div>
         <div className="section-cta-row"><span className="mono-note">DRAG / TOUCH / KEYBOARD</span><a className="text-link" href="#portfolio">Vezi proiectele <ArrowRight size={14} /></a></div>
       </div>

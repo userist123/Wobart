@@ -1,57 +1,70 @@
-/* WOB ART — process / atelier protocol */
+/* WOB ART — process / sticky stage + glass step cards (spec: PROJECT_BRAIN/DESIGN_V2.md) */
 
 #process { position: relative; overflow: clip; }
-#process::before { content: 'PROTOCOL'; position: absolute; right: -2%; top: 5%; color: rgba(255,255,255,.018); font: 400 clamp(150px,28vw,430px)/.72 var(--font-bebas-neue,sans-serif); pointer-events: none; }
+#process::before { display: none; }
 #process .section-heading, #process .process-layout { position: relative; z-index: 2; }
-#process .heading-note { max-width: 34ch; color: rgba(240,240,240,.42); }
-.process-list { margin-top: 62px; border-top: 1px solid rgba(255,255,255,.1); }
-.process-row { position: relative; display: grid; grid-template-columns: 90px minmax(0,1fr) 30px; gap: 28px; align-items: start; min-height: 170px; padding: 30px 14px 30px 0; border-bottom: 1px solid rgba(255,255,255,.08); transition: padding .5s var(--wob-ease), background .4s ease; }
-.process-row::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(0,240,255,.055), transparent 48%); opacity: 0; transition: opacity .35s ease; }
-.process-row:hover, .process-row:focus-within { padding-left: 18px; background: rgba(255,255,255,.012); }
-.process-row:hover::before, .process-row:focus-within::before { opacity: 1; }
-.process-number { color: var(--wob-accent); font: 500 10px/1 var(--font-jetbrains-mono,monospace); letter-spacing: .12em; }
-.process-row h3 { margin: 0 0 13px; font: 400 clamp(38px,5vw,74px)/.78 var(--font-bebas-neue,sans-serif); letter-spacing: .01em; }
-.process-row p { max-width: 55ch; color: rgba(240,240,240,.5); }
-.process-row > svg { margin-top: 4px; justify-self: end; color: rgba(255,255,255,.2); transition: transform .45s var(--wob-ease), color .25s ease; }
-.process-row:hover > svg { color: var(--wob-accent); transform: translate(5px,5px); }
-.process-row:last-child { border-bottom-color: rgba(0,240,255,.2); }
+#process .heading-note { max-width: 34ch; color: var(--wob-muted); }
+#process .process-layout { margin-top: 56px; }
+#process .process-list { display: grid; gap: 20px; margin-top: 0; border-top: 0; }
+#process .process-item { min-width: 0; }
 
-.process-layout { margin-top: 62px; }
-.process-layout .process-list { margin-top: 0; }
+/* glass step cards */
+#process .process-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) 24px; gap: 20px; align-items: start; min-height: 0; padding: 32px; overflow: hidden; border: 1px solid var(--wob-line); border-radius: 20px; background: var(--wob-glass); transition: border-color .15s ease, box-shadow .15s ease, transform .15s ease; }
+#process .process-row::before { content: ''; position: absolute; inset: 0; z-index: 0; width: auto; height: auto; background: linear-gradient(120deg, rgba(0,240,255,.08), transparent 55%); opacity: 0; transition: opacity .2s ease; }
+#process .process-row:hover, #process .process-row:focus-within, #process .process-row.is-active { padding: 32px; background: var(--wob-glass); }
+#process .process-row:hover, #process .process-row:focus-within { transform: translateY(-4px); border-color: rgba(0,240,255,.5); box-shadow: 0 8px 32px rgba(0,0,0,.4), 0 0 15px rgba(0,240,255,.2); }
+#process .process-row.is-active { border-color: rgba(0,240,255,.35); }
+#process .process-row.is-active::before, #process .process-row:hover::before, #process .process-row:focus-within::before { opacity: 1; height: auto; }
+#process .process-row:last-child { border-bottom: 1px solid var(--wob-line); }
+#process .process-row.is-active:last-child { border-bottom-color: rgba(0,240,255,.35); }
+
+/* ghost number behind the title */
+#process .process-number { position: absolute; z-index: 0; left: 28px; top: 14px; font: 900 64px/1 var(--font-display); letter-spacing: -.04em; color: rgba(255,255,255,.06); pointer-events: none; user-select: none; transition: color .2s ease; }
+#process .process-row:hover .process-number { color: rgba(255,255,255,.06); }
+#process .process-row.is-active .process-number { background: linear-gradient(100deg, #00f0ff 0%, #9ff9ff 50%, #ffffff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .85; }
+#process .process-row > div { position: relative; z-index: 1; padding-top: 28px; }
+#process .process-row h3 { margin: 0 0 12px; font: 600 clamp(20px,2.2vw,28px)/1.15 var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
+#process .process-row p { max-width: 55ch; margin: 0; color: var(--wob-muted); font-size: 16px; line-height: 1.65; }
+#process .process-row > svg { position: relative; z-index: 1; margin-top: 32px; justify-self: end; color: rgba(255,255,255,.3); transition: transform .15s ease, color .15s ease; }
+#process .process-row:hover > svg, #process .process-row.is-active > svg { color: var(--wob-accent); transform: translate(2px,2px); }
+
 .process-stage { display: none; }
 
 @media (min-width: 900px) {
-  .process-layout { display: grid; grid-template-columns: minmax(220px,.42fr) minmax(0,1fr); gap: 48px; align-items: start; }
-  .process-stage { display: block; position: sticky; top: 110px; padding-top: 30px; }
-  .process-stage-number { position: relative; font: 400 clamp(160px,20vw,300px)/.8 var(--font-bebas-neue,sans-serif); letter-spacing: .01em; }
-  .process-stage-ghost { position: absolute; left: 8px; top: 8px; color: rgba(255,255,255,.06); }
-  .process-stage-current { position: relative; display: block; color: var(--wob-accent); }
-  .process-rail { width: 2px; height: 120px; margin: 28px 0 18px; background: rgba(255,255,255,.1); overflow: hidden; }
-  .process-rail-fill { display: block; width: 100%; height: 100%; background: var(--wob-accent); transform-origin: top; transform: scaleY(1); }
-  .process-stage-title { margin: 0; color: rgba(240,240,240,.7); font: 500 12px/1.4 var(--font-jetbrains-mono,monospace); letter-spacing: .14em; text-transform: uppercase; }
+  #process .process-layout { display: grid; grid-template-columns: minmax(240px,.42fr) minmax(0,1fr); gap: 48px; align-items: start; }
+  #process .process-stage { display: block; position: sticky; top: 110px; padding-top: 24px; }
+  #process .process-stage-number { position: relative; font: 900 clamp(96px,11vw,150px)/.9 var(--font-display); letter-spacing: -.05em; }
+  #process .process-stage-ghost { position: absolute; left: 8px; top: 8px; color: rgba(255,255,255,.06); }
+  #process .process-stage-current { position: relative; display: block; background: linear-gradient(100deg, #00f0ff 0%, #9ff9ff 55%, #ffffff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #process .process-rail { width: 2px; height: 120px; margin: 28px 0 18px; background: rgba(255,255,255,.1); overflow: hidden; border-radius: 2px; }
+  #process .process-rail-fill { display: block; width: 100%; height: 100%; background: var(--wob-accent); box-shadow: 0 0 10px var(--wob-accent); transform-origin: top; transform: scaleY(1); }
+  #process .process-stage-title { margin: 0; color: rgba(255,255,255,.7); font: 500 11px/1.4 var(--font-mono); letter-spacing: .12em; text-transform: uppercase; }
 }
 
 @supports (animation-timeline: view()) {
   @media (min-width: 900px) {
     .process-layout { view-timeline: --process-layout block; }
-    .process-rail-fill { transform: scaleY(0); animation: process-rail-grow linear both; animation-timeline: --process-layout; animation-range: cover 15% cover 85%; }
-    .process-row { animation: process-row-in linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
+    #process .process-rail-fill { transform: scaleY(0); animation: process-rail-grow linear both; animation-timeline: --process-layout; animation-range: cover 15% cover 85%; }
+    #process .process-row { animation: process-row-in linear both; animation-timeline: view(); animation-range: entry 20% cover 45%; }
   }
 }
-@keyframes process-row-in { from { opacity: .35; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes process-row-in { from { opacity: .45; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes process-rail-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
 
 @media (max-width: 767px) {
-  .process-layout { margin-top: 40px; }
-  #process::before { right: -17%; top: 8%; font-size: 145px; }
-  .process-row { grid-template-columns: 36px minmax(0,1fr) 20px; gap: 10px; min-height: 145px; padding: 24px 0; }
-  .process-row:hover, .process-row:focus-within { padding-left: 7px; }
-  .process-row h3 { margin-bottom: 10px; font-size: 43px; }
-  .process-row p { font-size: 12px; line-height: 1.55; }
+  #process .process-layout { margin-top: 36px; }
+  #process .process-list { gap: 16px; }
+  #process .process-row, #process .process-row:hover, #process .process-row:focus-within, #process .process-row.is-active { grid-template-columns: minmax(0,1fr); padding: 24px; }
+  #process .process-row > svg { display: none; }
+  #process .process-number { left: 20px; top: 10px; font-size: 56px; }
+  #process .process-row > div { padding-top: 24px; }
+  #process .process-row:hover, #process .process-row:focus-within { transform: none; }
+  #process .process-row p { font-size: 15px; line-height: 1.6; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .process-row, .process-rail-fill { animation: none !important; }
-  .process-rail-fill { transform: scaleY(1) !important; }
-  .process-row, .process-row::before, .process-row > svg { transition: none; }
+  #process .process-row, #process .process-rail-fill { animation: none !important; }
+  #process .process-rail-fill { transform: scaleY(1) !important; }
+  #process .process-row, #process .process-row::before, #process .process-row > svg { transition: none; }
+  #process .process-row:hover, #process .process-row:focus-within { transform: none; }
 }

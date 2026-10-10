@@ -1,14 +1,20 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ArrowDownRight } from 'lucide-react'
 import { useReveal } from '@/hooks/useReveal'
 import { useSiteContent } from '@/hooks/useSiteContent'
 
 const STEP_TITLES = ['DESCOPERIRE', 'OFERTĂ', 'TRANSFORMARE', 'CONTROL', 'PREDARE', 'FOLLOW-UP']
 
+function ProcessItem({ index, children }: { index: number; children: ReactNode }) {
+  const ref = useReveal<HTMLDivElement>({ delay: 80 * (index % 6) })
+  return <div ref={ref} className="reveal process-item">{children}</div>
+}
+
 export function ProcessSection() {
   const ref = useReveal<HTMLDivElement>()
+  const stageRef = useReveal<HTMLDivElement>({ delay: 80 })
   const { content } = useSiteContent()
   const listRef = useRef<HTMLDivElement>(null)
   const [active, setActive] = useState(0)
@@ -49,7 +55,7 @@ export function ProcessSection() {
           <p className="body-copy heading-note">{intro.body || 'Un rezultat premium nu se grăbește. Fiecare etapă reduce riscul și crește precizia.'}</p>
         </div>
         <div className="process-layout">
-          <div className="process-stage" aria-hidden="true">
+          <div ref={stageRef} className="reveal process-stage" aria-hidden="true">
             <div className="process-stage-number">
               <span className="process-stage-ghost">{activeNumber}</span>
               <span className="process-stage-current">{activeNumber}</span>
@@ -59,11 +65,13 @@ export function ProcessSection() {
           </div>
           <div ref={listRef} className="process-list">
           {visible.map((body, index) => (
-            <article key={`${index}-${body}`} className="process-row">
+            <ProcessItem key={`${index}-${body}`} index={index}>
+            <article className={`process-row glass${index === activeIndex ? ' is-active' : ''}`}>
               <span className="process-number">{String(index + 1).padStart(2, '0')}</span>
               <div><h3>{STEP_TITLES[index] ?? `ETAPA ${index + 1}`}</h3><p className="body-copy">{body}</p></div>
               <ArrowDownRight size={18} aria-hidden="true" />
             </article>
+            </ProcessItem>
           ))}
           </div>
         </div>
