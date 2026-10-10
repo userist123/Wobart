@@ -102,6 +102,7 @@ bpy.context.view_layer.update()
 # ---- scan mask: node group, output 'Beyond' = 1 where world x > scan
 mask = bpy.data.node_groups.new("ScanMask", "ShaderNodeTree")
 mask.interface.new_socket("Beyond", in_out="OUTPUT", socket_type="NodeSocketFloat")
+mask.interface.new_socket("Band", in_out="OUTPUT", socket_type="NodeSocketFloat")
 mn = mask.nodes
 geo = mn.new("ShaderNodeNewGeometry")
 sep = mn.new("ShaderNodeSeparateXYZ")
@@ -121,6 +122,18 @@ ml.new(sep.outputs["X"], sub.inputs[0])
 ml.new(scan_val.outputs[0], sub.inputs[1])
 ml.new(sub.outputs[0], mr.inputs["Value"])
 ml.new(mr.outputs["Result"], gout.inputs[0])
+# 'Band': 1 on a thin slice at the cut, so the hologram side glows like a laser line around the body
+absn = mn.new("ShaderNodeMath")
+absn.operation = "ABSOLUTE"
+band = mn.new("ShaderNodeMapRange")
+band.interpolation_type = "SMOOTHSTEP"
+band.inputs["From Min"].default_value = 0.0
+band.inputs["From Max"].default_value = 0.045
+band.inputs["To Min"].default_value = 1.0
+band.inputs["To Max"].default_value = 0.0
+ml.new(sub.outputs[0], absn.inputs[0])
+ml.new(absn.outputs[0], band.inputs["Value"])
+ml.new(band.outputs["Result"], gout.inputs[1])
 
 
 def masked(mat, show_when_beyond):
@@ -163,7 +176,7 @@ for m in real_mats:
 
 
 # ---- hologram materials
-def holo_material(name, colour, strength, fresnel=True, opacity_value=None):
+def holo_material(name, colour, strength, fresnel=True, opacity_value=None, laser=False):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     nt = m.node_tree
@@ -203,11 +216,25 @@ def holo_material(name, colour, strength, fresnel=True, opacity_value=None):
     nt.links.new(tr.outputs[0], mix.inputs[1])
     nt.links.new(em.outputs[0], mix.inputs[2])
     nt.links.new(mix.outputs[0], out.inputs["Surface"])
+    if laser:
+        g = nt.nodes.new("ShaderNodeGroup")
+        g.node_tree = mask
+        le = nt.nodes.new("ShaderNodeEmission")
+        le.inputs["Color"].default_value = (0.55, 1.0, 1.0, 1)
+        lm = nt.nodes.new("ShaderNodeMath")
+        lm.operation = "MULTIPLY"
+        lm.inputs[1].default_value = 40.0
+        nt.links.new(g.outputs["Band"], lm.inputs[0])
+        nt.links.new(lm.outputs[0], le.inputs["Strength"])
+        add = nt.nodes.new("ShaderNodeAddShader")
+        nt.links.new(mix.outputs[0], add.inputs[0])
+        nt.links.new(le.outputs[0], add.inputs[1])
+        nt.links.new(add.outputs[0], out.inputs["Surface"])
     masked(m, show_when_beyond=True)
     return m
 
 
-shell_mat = holo_material("HoloShell", (0.15, 0.75, 1.0), 2.2)
+shell_mat = holo_material("HoloShell", (0.15, 0.75, 1.0), 2.2, laser=True)
 wire_mat = holo_material("HoloWire", (0.55, 0.95, 1.0), 9.0, fresnel=False)
 layer_mats = [holo_material("HoloLayerA", (0.48, 0.36, 1.0), 3.0, opacity_value=0.0),
               holo_material("HoloLayerB", (0.0, 0.9, 1.0), 3.0, opacity_value=0.0)]
@@ -339,7 +366,7 @@ def area(name, loc, rot, size_xy, energy, colour):
 
 area("Softbox", (0, 0, 6.5), (0, 0, 0), (7, 3.2), 3000, (1, 1, 1))
 area("StripWhite", (3.5, -5.5, 2.2), (math.radians(70), 0, math.radians(32)), (0.35, 6), 1700, (0.95, 0.97, 1.0))
-area("StripCyan", (-4.8, -3.0, 1.6), (math.radians(75), 0, math.radians(-55)), (0.25, 5), 520, (0.25, 0.9, 1.0))
+area("StripCyan", (-4.8, -3.0, 1.6), (math.radians(75), 0, math.radians(-55)), (0.25, 5), 300, (0.25, 0.9, 1.0))
 area("BackGlow", (0, 9.5, 3.5), (math.radians(-75), 0, 0), (14, 1.2), 300, (0.55, 0.45, 1.0))
 
 # scan plane: thin glowing sheet across the car at the cut
@@ -353,14 +380,14 @@ snt.nodes.clear()
 so = snt.nodes.new("ShaderNodeOutputMaterial")
 se = snt.nodes.new("ShaderNodeEmission")
 se.inputs["Color"].default_value = (0.45, 0.95, 1.0, 1)
-se.inputs["Strength"].default_value = 4.0
+se.inputs["Strength"].default_value = 1.2
 st = snt.nodes.new("ShaderNodeBsdfTransparent")
 sx = snt.nodes.new("ShaderNodeMixShader")
 sg = snt.nodes.new("ShaderNodeTexGradient")
 sg.gradient_type = "SPHERICAL"
 stc = snt.nodes.new("ShaderNodeTexCoord")
 smap = snt.nodes.new("ShaderNodeMapping")
-smap.inputs["Scale"].default_value = (2.0, 2.0, 2.0)
+smap.inputs["Scale"].default_value = (2.4, 2.4, 2.4)
 sop = snt.nodes.new("ShaderNodeValue")
 sop.name = "Opacity"
 sop.outputs[0].default_value = 0.0
