@@ -187,7 +187,8 @@ export function ConfiguratorSection() {
             </div>
 
             <p className="body-copy configurator-disclaimer">
-              Randare orientativă pe un model generic — nu reprezintă un vehicul sau o folie anume.
+              Randare orientativă pe un model generic — nu reprezintă un vehicul sau o folie anume. Model 3D: „Car Concept" © 2024 Darmstadt Graphics Group GmbH / Eric Chadwick,{' '}
+              <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a> (bază CC0 de Unity Fan), via Khronos glTF-Sample-Assets.
             </p>
           </div>
         </div>

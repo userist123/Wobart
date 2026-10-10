@@ -200,7 +200,7 @@ export default function WrapConfigurator({ color, active, label }: Props) {
       dpr={dpr}
       frameloop={active ? 'always' : 'never'}
       gl={{ antialias: true, powerPreference: 'high-performance' }}
-      camera={{ position: [4.0, 1.2, 5.3], fov: 27 }}
+      camera={{ position: [4.4, 1.25, 5.8], fov: 27 }}
       style={{ background: 'transparent' }}
       aria-label={label}
     >
