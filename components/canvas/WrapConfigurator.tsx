@@ -1,8 +1,8 @@
 'use client'
 
-import { Suspense, useMemo, useRef, useSyncExternalStore } from 'react'
+import { Suspense, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { ContactShadows, Environment, Lightformer, OrbitControls, RoundedBox } from '@react-three/drei'
+import { ContactShadows, Environment, Lightformer, OrbitControls, useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import type { WrapColorContent, WrapFinish } from '@/lib/site-content'
 
@@ -50,14 +50,48 @@ function useReducedMotion() {
 
 const DAMP = 6
 
+const MODEL_URL = '/models/wob-car.glb'
+const GROUND_Y = -0.42
+
 function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) {
   const target = useMemo(() => buildTarget(color.hex, color.finish), [color.hex, color.finish])
-  const matRef = useRef<THREE.MeshPhysicalMaterial>(null)
-  const init = useMemo(() => buildTarget(color.hex, color.finish), []) // eslint-disable-line react-hooks/exhaustive-deps
+  const { scene } = useGLTF(MODEL_URL, false, true)
+
+  const wrap = useMemo(() => {
+    const t = buildTarget(color.hex, color.finish)
+    return new THREE.MeshPhysicalMaterial({
+      color: t.color,
+      roughness: t.roughness,
+      metalness: t.metalness,
+      clearcoat: t.clearcoat,
+      clearcoatRoughness: t.clearcoatRoughness,
+      iridescence: t.iridescence,
+      iridescenceIOR: 1.8,
+      iridescenceThicknessRange: [120, 650],
+    })
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const wrapRef = useRef(wrap)
+
+  const model = useMemo(() => {
+    const root = scene.clone(true)
+    root.traverse((obj) => {
+      if (!(obj instanceof THREE.Mesh)) return
+      obj.castShadow = true
+      const mat: THREE.Material | THREE.Material[] = obj.material
+      if (Array.isArray(mat)) {
+        obj.material = mat.map((m) => (m.name === 'Wrap' ? wrap : m))
+      } else if (mat.name === 'Wrap') {
+        obj.material = wrap
+      }
+    })
+    return root
+  }, [scene, wrap])
+
+  useEffect(() => () => wrap.dispose(), [wrap])
 
   useFrame((_, delta) => {
-    const m = matRef.current
-    if (!m) return
+    const m = wrapRef.current
     const k = reduced ? 1 : 1 - Math.exp(-DAMP * Math.min(delta, 0.1))
     m.color.lerp(target.color, k)
     m.roughness += (target.roughness - m.roughness) * k
@@ -67,56 +101,14 @@ function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) 
     m.iridescence += (target.iridescence - m.iridescence) * k
   })
 
-  const wheelX = [1.35, -1.35]
-  const wheelZ = [0.9, -0.9]
-
   return (
-    <group position={[0, 0.2, 0]}>
-      <RoundedBox args={[4.2, 0.55, 1.8]} radius={0.12} smoothness={4}>
-        <meshPhysicalMaterial
-          ref={matRef}
-          color={init.color}
-          roughness={init.roughness}
-          metalness={init.metalness}
-          clearcoat={init.clearcoat}
-          clearcoatRoughness={init.clearcoatRoughness}
-          iridescence={init.iridescence}
-          iridescenceIOR={1.8}
-          iridescenceThicknessRange={[120, 650]}
-        />
-      </RoundedBox>
-      <RoundedBox args={[2.2, 0.55, 1.5]} radius={0.12} smoothness={4} position={[-0.3, 0.5, 0]}>
-        <meshPhysicalMaterial color="#0b0d12" roughness={0.05} metalness={0.2} transmission={0} />
-      </RoundedBox>
-      {wheelX.flatMap((x) =>
-        wheelZ.map((z) => (
-          <group key={`${x}-${z}`} position={[x, -0.2, z]}>
-            <mesh rotation={[Math.PI / 2, 0, 0]}>
-              <cylinderGeometry args={[0.42, 0.42, 0.3, 32]} />
-              <meshStandardMaterial color="#0a0a0a" roughness={0.9} metalness={0} />
-            </mesh>
-            <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, Math.sign(z) * 0.151]}>
-              <cylinderGeometry args={[0.27, 0.27, 0.02, 32]} />
-              <meshStandardMaterial color="#b9bcc4" roughness={0.3} metalness={0.9} />
-            </mesh>
-          </group>
-        )),
-      )}
-      {[0.55, -0.55].map((z) => (
-        <mesh key={`h${z}`} position={[2.1, 0.02, z]}>
-          <boxGeometry args={[0.06, 0.1, 0.36]} />
-          <meshStandardMaterial color="#DFF6FF" emissive="#DFF6FF" emissiveIntensity={2} />
-        </mesh>
-      ))}
-      {[0.6, -0.6].map((z) => (
-        <mesh key={`t${z}`} position={[-2.1, 0.05, z]}>
-          <boxGeometry args={[0.06, 0.08, 0.4]} />
-          <meshStandardMaterial color="#FF2A2A" emissive="#FF2A2A" emissiveIntensity={2} />
-        </mesh>
-      ))}
+    <group position={[0, GROUND_Y, 0]}>
+      <primitive object={model} />
     </group>
   )
 }
+
+useGLTF.preload(MODEL_URL, false, true)
 
 export default function WrapConfigurator({ color, active, label }: Props) {
   const reduced = useReducedMotion()
@@ -139,7 +131,7 @@ export default function WrapConfigurator({ color, active, label }: Props) {
           <Lightformer form="ring" color="#E8FF00" intensity={0.6} position={[0, 2, -7]} scale={4} />
         </Environment>
         <Car color={color} reduced={reduced} />
-        <ContactShadows position={[0, -0.62, 0]} opacity={0.55} blur={2.4} scale={10} frames={1} />
+        <ContactShadows position={[0, GROUND_Y - 0.01, 0]} opacity={0.55} blur={2.4} scale={10} frames={1} />
         <OrbitControls
           enablePan={false}
           enableZoom={false}
