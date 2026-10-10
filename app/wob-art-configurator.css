@@ -71,3 +71,5 @@
 .configurator-section .configurator-disclaimer{font-size:12px;color:rgba(255,255,255,.45)}
 @media(max-width:1023px){.configurator-section .configurator-layout{grid-template-columns:1fr}.configurator-section .configurator-stage{min-height:0;aspect-ratio:16/10}}
 @media(max-width:767px){.configurator-section .configurator-stage{aspect-ratio:auto;min-height:72vw}.configurator-section .configurator-panel{padding:22px}.configurator-section .configurator-static-label,.configurator-section .configurator-caption{left:16px}.configurator-section .configurator-static-label{top:16px}.configurator-section .configurator-caption{bottom:16px}.configurator-section .configurator-hint{right:16px;bottom:16px}}
+
+.configurator-section .configurator-swatch-name{display:none}

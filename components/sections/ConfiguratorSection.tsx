@@ -162,7 +162,6 @@ export function ConfiguratorSection() {
             <fieldset className="configurator-fieldset">
               <legend className="eyebrow">Culoare și finisaj</legend>
 
-              <p className="eyebrow configurator-sublabel" aria-hidden="true">FINISAJ</p>
               <div className="configurator-filters">
                 {(['all', ...finishes] as const).map((f) => (
                   <button

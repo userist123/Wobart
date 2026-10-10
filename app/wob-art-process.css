@@ -19,10 +19,10 @@
 #process .process-row.is-active:last-child { border-bottom-color: rgba(0,240,255,.35); }
 
 /* ghost number behind the title */
-#process .process-number { position: absolute; z-index: 0; left: 28px; top: 14px; font: 900 64px/1 var(--font-display); letter-spacing: -.04em; color: rgba(255,255,255,.06); pointer-events: none; user-select: none; transition: color .2s ease; }
+#process .process-number { position: absolute; z-index: 0; right: 64px; left: auto; top: 50%; transform: translateY(-50%); font: 900 clamp(56px,6vw,88px)/1 var(--font-display); letter-spacing: -.04em; color: rgba(255,255,255,.06); pointer-events: none; user-select: none; transition: color .2s ease; }
 #process .process-row:hover .process-number { color: rgba(255,255,255,.06); }
-#process .process-row.is-active .process-number { background: linear-gradient(100deg, #00f0ff 0%, #9ff9ff 50%, #ffffff 100%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .85; }
-#process .process-row > div { position: relative; z-index: 1; padding-top: 28px; }
+#process .process-row.is-active .process-number { color: rgba(0,240,255,.14); }
+#process .process-row > div { position: relative; z-index: 1; padding-top: 0; }
 #process .process-row h3 { margin: 0 0 12px; font: 600 clamp(20px,2.2vw,28px)/1.15 var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
 #process .process-row p { max-width: 55ch; margin: 0; color: var(--wob-muted); font-size: 16px; line-height: 1.65; }
 #process .process-row > svg { position: relative; z-index: 1; margin-top: 32px; justify-self: end; color: rgba(255,255,255,.3); transition: transform .15s ease, color .15s ease; }

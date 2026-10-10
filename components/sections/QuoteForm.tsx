@@ -76,7 +76,7 @@ export function QuoteForm() {
       <div className="section-shell quote-layout-premium">
         <div className="quote-intro">
           <Reveal><span className="quote-index">07 / PROJECT BRIEF</span>
-          <p className="eyebrow">Contact</p>
+          
           <h2>GATA SĂ<br /><span>TRANSFORMI?</span></h2>
           <p className="body-copy">Trimite-ne direcția proiectului. Îți răspundem cu pașii potriviți pentru mașina ta.</p></Reveal>
           <ul>{['Consultație gratuită', 'Răspuns în aceeași zi', 'Fără angajament'].map((t, i) => <Reveal as="li" key={t} delay={(i + 1) * 80}><span aria-hidden="true"><Check size={12} /></span>{t}</Reveal>)}</ul>
