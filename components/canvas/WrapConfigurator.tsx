@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { ContactShadows, Environment, Lightformer, MeshReflectorMaterial, OrbitControls, PerformanceMonitor, useGLTF } from '@react-three/drei'
+import { ContactShadows, Environment, Lightformer, OrbitControls, PerformanceMonitor, useGLTF } from '@react-three/drei'
 import { Bloom, EffectComposer, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
 import type { WrapColorContent, WrapFinish } from '@/lib/site-content'
@@ -126,13 +126,13 @@ function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) 
       obj.castShadow = !(first instanceof THREE.MeshPhysicalMaterial && first.transmission > 0)
     })
     // auto-fit any model: long axis along X, centred, wheels on y = 0, normalised length
-    const box = new THREE.Box3().setFromObject(root)
+    const box = new THREE.Box3().setFromObject(root, true) // precise: quantized accessor bounds are inflated
     const size = box.getSize(new THREE.Vector3())
     const holder = new THREE.Group()
     holder.add(root)
     if (size.z > size.x) root.rotation.y = Math.PI / 2
     holder.updateMatrixWorld(true)
-    const fitted = new THREE.Box3().setFromObject(holder)
+    const fitted = new THREE.Box3().setFromObject(holder, true)
     const fittedSize = fitted.getSize(new THREE.Vector3())
     const scale = TARGET_LENGTH / Math.max(fittedSize.x, 0.001)
     const center = fitted.getCenter(new THREE.Vector3())
@@ -219,24 +219,7 @@ export default function WrapConfigurator({ color, active, label }: Props) {
             <Lightformer form="rect" color="#ffffff" intensity={1.2} position={[-6, 1.5, 2]} rotation-y={Math.PI / 2} scale={[8, 0.8, 1]} />
           </Environment>
           <Car color={color} reduced={reduced} />
-          <mesh rotation-x={-Math.PI / 2} position={[0, 0, 0]}>
-            <circleGeometry args={[12, 64]} />
-            <MeshReflectorMaterial
-              blur={[300, 100]}
-              resolution={512}
-              mixBlur={1}
-              mixStrength={14}
-              roughness={1}
-              depthScale={1.1}
-              minDepthThreshold={0.4}
-              maxDepthThreshold={1.4}
-              color="#050506"
-              metalness={0}
-              envMapIntensity={0.12}
-              mirror={0.3}
-            />
-          </mesh>
-          <ContactShadows position={[0, 0.005, 0]} opacity={0.7} blur={2.6} scale={10} frames={1} />
+          <ContactShadows position={[0, 0.002, 0]} opacity={0.8} blur={2.2} scale={12} far={2.5} resolution={1024} frames={1} />
           <OrbitControls
             enablePan={false}
             enableZoom={false}
