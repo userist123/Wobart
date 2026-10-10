@@ -29,9 +29,12 @@ export function HeroSection() {
   const pointerFrame = useRef<number | null>(null)
   const pointerTarget = useRef<Pointer>({ x: 0, y: 0 })
   const kickerRef = useReveal<HTMLParagraphElement>()
-  const titleRef = useReveal<HTMLHeadingElement>({ delay: 90 })
-  const copyRef = useReveal<HTMLDivElement>({ delay: 170 })
-  const metaRef = useReveal<HTMLDivElement>({ delay: 260 })
+  const titleRef = useReveal<HTMLHeadingElement>({ delay: 80 })
+  const subRef = useReveal<HTMLParagraphElement>({ delay: 160 })
+  const copyRef = useReveal<HTMLDivElement>({ delay: 240 })
+  const metaRef = useReveal<HTMLDivElement>({ delay: 320 })
+  const metaRef2 = useReveal<HTMLDivElement>({ delay: 400 })
+  const metaRef3 = useReveal<HTMLDivElement>({ delay: 480 })
 
   useEffect(() => {
     fetch('/api/content', { cache: 'no-store' })
@@ -74,45 +77,38 @@ export function HeroSection() {
   const titleLines = useMemo(() => hero.title.split('\n').filter(Boolean), [hero.title])
 
   return (
-    <section className="hero-shell" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
-      <div className="hero-media" aria-hidden="true">
+    <section className="v2-hero" style={{ '--hero-x': `${pointer.x}px`, '--hero-y': `${pointer.y}px`, '--hero-progress': scrollProgress } as React.CSSProperties}>
+      <div className="v2-hero-media" aria-hidden="true">
         {videoSrc ? (
-          <video className="hero-video" autoPlay muted loop playsInline poster={imageSrc} preload="metadata" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.06)` }}>
+          <video className="v2-hero-img" autoPlay muted loop playsInline poster={imageSrc} preload="metadata" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.06)` }}>
             <source src={videoSrc} />
           </video>
         ) : (
-          <Image src={imageSrc} alt="" fill priority sizes="100vw" unoptimized={isRemoteImage} className="object-cover hero-image" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.035)` }} />
+          <Image src={imageSrc} alt="" fill priority sizes="100vw" unoptimized={isRemoteImage} className="object-cover v2-hero-img" style={{ transform: `translate3d(${pointer.x * -10}px, ${pointer.y * -7 + scrollProgress * 15}px, 0) scale(1.035)` }} />
         )}
-        <div className="hero-vignette" />
-        <div className="hero-light-sweep" style={{ transform: `translate3d(${pointer.x * 24}px, ${pointer.y * 10}px, 0)` }} />
-        <div className="hero-scanline" />
+        <div className="v2-hero-overlay" />
+        <div className="v2-hero-glow" />
       </div>
-      <div className="hero-engineering-grid" aria-hidden="true" />
-      <div className="hero-field-index" aria-hidden="true">WOB / 001</div>
-      <div className="hero-field-word" aria-hidden="true">ART</div>
-      <div className="section-shell hero-inner" style={{ transform: `translate3d(0, ${scrollProgress * -32}px, 0)`, opacity: Math.max(0.18, 1 - scrollProgress * 0.62) }}>
-        <div className="hero-copy">
-          <p ref={kickerRef} className="reveal eyebrow hero-kicker">{hero.eyebrow}</p>
-          <h1 ref={titleRef} className="reveal hero-title">
-            {titleLines.map((line, index) => <span key={`${line}-${index}`} className={index === titleLines.length - 1 ? 'hero-title-line hero-title-line-offset' : 'hero-title-line'}>{line}</span>)}
+      <div className="v2-hero-coord" aria-hidden="true">WOB / 001</div>
+      <div className="section-shell v2-hero-inner" style={{ transform: `translate3d(0, ${scrollProgress * -32}px, 0)`, opacity: Math.max(0.18, 1 - scrollProgress * 0.62) }}>
+        <div className="v2-hero-copy">
+          <p ref={kickerRef} className="reveal eyebrow v2-hero-eyebrow">{hero.eyebrow}</p>
+          <h1 ref={titleRef} className="reveal v2-hero-title">
+            {titleLines.map((line, index) => <span key={`${line}-${index}`} className={titleLines.length > 1 && index === titleLines.length - 1 ? 'v2-hero-line v2-hero-line-accent' : 'v2-hero-line'}>{line}</span>)}
           </h1>
-          <div ref={copyRef} className="reveal hero-copy-row">
-            <p className="body-copy hero-description">{hero.description}</p>
-            <div className="hero-actions">
-              <MagneticButton variant="accent" size="lg" href={hero.primaryCtaHref}>{hero.primaryCtaLabel}</MagneticButton>
-              <a className="text-link" href={hero.secondaryCtaHref}>{hero.secondaryCtaLabel} <ArrowUpRight size={14} /></a>
-            </div>
+          <p ref={subRef} className="reveal v2-hero-sub">{hero.description}</p>
+          <div ref={copyRef} className="reveal v2-hero-actions">
+            <MagneticButton variant="accent" size="lg" href={hero.primaryCtaHref}>{hero.primaryCtaLabel}</MagneticButton>
+            <MagneticButton variant="ghost" size="lg" href={hero.secondaryCtaHref}>{hero.secondaryCtaLabel} <ArrowUpRight size={14} aria-hidden="true" /></MagneticButton>
           </div>
         </div>
-        <div ref={metaRef} className="reveal hero-meta">
-          <div className="hero-meta-block"><span>Locație</span><strong>{identity.city || 'București'}</strong></div>
-          <div className="hero-meta-block"><span>Brand</span><strong>{identity.brandName}</strong></div>
-          <div className="hero-meta-block hero-meta-last"><span>Scroll pentru</span><a href="#services">servicii <ArrowDownRight size={13} /></a></div>
+        <div className="v2-hero-stats">
+          <div ref={metaRef} className="reveal glass v2-hero-chip"><span>Locație</span><strong>{identity.city || 'București'}</strong></div>
+          <div ref={metaRef2} className="reveal glass v2-hero-chip"><span>Brand</span><strong>{identity.brandName}</strong></div>
+          <div ref={metaRef3} className="reveal glass glass-hover v2-hero-chip"><span>Scroll pentru</span><a href="#services">servicii <ArrowDownRight size={13} aria-hidden="true" /></a></div>
         </div>
       </div>
-      <div className="hero-index" aria-hidden="true">01</div>
-      <div className="hero-side-label" aria-hidden="true">PRECISION / MATERIAL / FINISH</div>
-      <div className="hero-scroll-rail" aria-hidden="true"><span style={{ transform: `scaleY(${Math.max(.06, 1 - scrollProgress)})` }} /></div>
+      <div className="v2-hero-cue" aria-hidden="true"><span /></div>
     </section>
   )
 }

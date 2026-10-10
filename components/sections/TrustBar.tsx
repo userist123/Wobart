@@ -32,31 +32,32 @@ function CountUp({ target, suffix }: { target: number; suffix: string }) {
   return <span className="tabular-nums"><span ref={elRef}>0</span>{suffix}</span>
 }
 
+function TrustItem({ item, index }: { item: string; index: number }) {
+  const ref = useReveal<HTMLLIElement>({ delay: index * 80 })
+  const match = item.match(/^(\d+)(.*)$/)
+  const target = match ? Number(match[1]) : null
+  const suffix = match?.[2]?.trim() ? ` ${match[2].trim()}` : ''
+  return (
+    <li ref={ref} className="reveal flex items-center gap-4 sm:gap-6">
+      {index > 0 && <span aria-hidden="true" className="hidden size-1 shrink-0 rounded-full bg-[#00F0FF] shadow-[0_0_8px_#00F0FF] sm:block" />}
+      <span className="font-mono text-[11px] font-medium uppercase leading-none tracking-[.12em] text-white/80">
+        {target !== null ? <CountUp target={target} suffix={suffix} /> : item}
+      </span>
+    </li>
+  )
+}
+
 export function TrustBar() {
-  const ref = useReveal<HTMLElement>()
   const { content } = useSiteContent()
   const items = content.home.trustItems
 
   if (!items.length) return null
 
   return (
-    <section ref={ref} className="reveal bg-[#111111] border-y border-white/[0.07] py-12 md:py-16" aria-label="WOB ART în cifre">
-      <div className="max-w-[1400px] mx-auto px-5 sm:px-8 md:px-12">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x md:divide-white/[0.07]">
-          {items.map((item, index) => {
-            const match = item.match(/^(\d+)(.*)$/)
-            const target = match ? Number(match[1]) : null
-            const suffix = match?.[2]?.trim() ?? ''
-            return (
-              <div key={`${item}-${index}`} className="flex flex-col items-center text-center px-4 md:px-8 py-4">
-                <div className="font-display text-[clamp(44px,6vw,72px)] leading-none text-[#00F0FF]">
-                  {target !== null ? <CountUp target={target} suffix={suffix} /> : item}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+    <section className="section-shell relative z-10 py-6 md:py-10" aria-label="WOB ART în cifre">
+      <ul className="glass m-0 flex list-none flex-wrap items-center justify-center gap-x-6 gap-y-4 px-6 py-5 sm:gap-x-6 md:px-10 md:py-6">
+        {items.map((item, index) => <TrustItem key={`${item}-${index}`} item={item} index={index} />)}
+      </ul>
     </section>
   )
 }

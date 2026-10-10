@@ -34,23 +34,23 @@ export function Navbar() {
 
   return (
     <>
-      <header className={`site-header ${scrolled ? 'site-header-scrolled' : ''}`}>
-        <div className="header-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
-        <div className="section-shell header-inner">
-          <a href="#top" className="brand-lockup" aria-label="WOB ART — acasă">
+      <header className={`v2-nav ${scrolled ? 'v2-nav-scrolled' : ''}`}>
+        <div className="v2-nav-bar glass">
+          <div className="header-progress" aria-hidden="true"><span style={{ width: `${progress}%` }} /></div>
+          <a href="#top" className="v2-wordmark" aria-label="WOB ART — acasă">
             <span>WOB</span>
             <small>ART</small>
           </a>
 
-          <nav className="desktop-nav" aria-label="Principal">
+          <nav className="v2-nav-links" aria-label="Principal">
             {LINKS.map(link => <a key={link.href} href={link.href}>{link.label}</a>)}
           </nav>
 
-          <div className="header-actions">
-            <a href="#estimator" className="header-estimate">Estimează</a>
-            <MagneticButton variant="accent" size="sm" href="#quote">Ofertă</MagneticButton>
+          <div className="v2-nav-actions">
+            <a href="#estimator" className="v2-nav-estimate">Estimează</a>
+            <MagneticButton variant="accent" size="sm" href="#quote" className="v2-nav-cta">Ofertă</MagneticButton>
             <button className="menu-button" onClick={() => setMenuOpen(v => !v)} aria-expanded={menuOpen} aria-controls="wob-mobile-menu" aria-label={menuOpen ? 'Închide meniul' : 'Deschide meniul'}>
-              {menuOpen ? <X size={22} /> : <Menu size={22} />}
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>
@@ -58,7 +58,7 @@ export function Navbar() {
 
       <div id="wob-mobile-menu" className={`mobile-menu ${menuOpen ? 'is-open' : ''}`} aria-hidden={!menuOpen}>
         <div className="mobile-menu-inner">
-          <div className="mobile-menu-head"><span>WØB / NAVIGATION</span><span>BUCHAREST · RO</span></div>
+          <div className="mobile-menu-head"><span>WOB / NAVIGATION</span><span>BUCHAREST · RO</span></div>
           <p className="eyebrow">Navigare</p>
           <nav aria-label="Mobil">
             {LINKS.map((link, i) => (
