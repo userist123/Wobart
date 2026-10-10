@@ -31,3 +31,16 @@ server needs `mcp<2` or a port to `MCPServer`, pytest not preinstalled.
 ## Still only the owner can supply
 Licensed realistic car model (if wanted), real photos, phone/address/hours, reviews, logo, Vercel env vars
 (`MONGO_URL`, backend URL), DNS at the registrar, admin-level installs (toktx).
+
+## Penpot design via MCP (set up 2026-10-10, owner-approved)
+- Penpot 2.18 runs locally at `http://localhost:9001` (Docker Compose project `penpot`, `C:\Dev\penpot`).
+- Agent account `agent@wob-art.local` ("WOB Design Agent"); password only in `D:\Tools\penpot-agent\agent-account.txt`.
+  Its design file: "WOB ART — Design v3" (Drafts of the agent's personal team).
+- A dedicated headless Chromium (`D:\Tools\penpot-agent\start-browser.cjs`, CDP on 127.0.0.1:9333 only, profile in
+  `D:\Tools\penpot-agent\profile`) keeps the workspace open with Main menu → MCP server → Connect. The owner explicitly
+  approved keeping this browser running while we work; stop it by closing that Chromium process.
+- MCP client: `D:\Tools\penpot-mcp-client\call.mjs` (official SDK). Server URL + key read from `mcp-url.txt`
+  (currently the agent's key; the owner's key is kept in `mcp-url-user.txt`). Never print these files.
+  `node call.mjs list` · `node call.mjs execute_code @code.json` · `node call.mjs export_shape '{"shapeId":"<id>"}'`.
+- Gotchas: `penpot.currentUser` needs a permission the plugin lacks; `export_shape` with "page" fails, export a board id.
+  A Playwright `has-text("Connect")` also matches "Disconnect": match `/^Connect$/`.
