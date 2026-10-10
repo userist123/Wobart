@@ -5,7 +5,7 @@
 .section { scroll-margin-top: 82px; }
 .section-shell { position: relative; }
 .section-heading { position: relative; }
-.section-heading::after { content: ''; position: absolute; left: 0; right: 0; bottom: -28px; height: 1px; background: linear-gradient(90deg, var(--wob-line), rgba(232,255,0,.16) 42%, transparent 78%); opacity: .7; }
+.section-heading::after { content: ''; position: absolute; left: 0; right: 0; bottom: -28px; height: 1px; background: linear-gradient(90deg, var(--wob-line), rgba(0,240,255,.16) 42%, transparent 78%); opacity: .7; }
 .section-cta-row { position: relative; margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--wob-line-soft); }
 .section-cta-row::before { content: ''; position: absolute; top: -1px; left: 0; width: 46px; height: 1px; background: var(--wob-accent); }
 

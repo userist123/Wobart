@@ -4,8 +4,8 @@
 .review-card { position: relative; grid-column: span 4; min-height: 330px; display: flex; flex-direction: column; justify-content: space-between; padding: 28px; border: 1px solid rgba(255,255,255,.08); background: linear-gradient(145deg,rgba(255,255,255,.025),rgba(255,255,255,.008)); overflow: hidden; transition: transform .5s var(--wob-ease), border-color .35s ease, background .35s ease; }
 .review-card:nth-child(2) { transform: translateY(48px); }
 .review-card:nth-child(3) { transform: translateY(-22px); }
-.review-card::before { content: '“'; position: absolute; right: 18px; top: -22px; color: rgba(232,255,0,.08); font: 400 170px/.8 var(--font-bebas-neue,sans-serif); pointer-events: none; }
-.review-card:hover { transform: translateY(-6px); border-color: rgba(232,255,0,.25); background: linear-gradient(145deg,rgba(232,255,0,.035),rgba(255,255,255,.008)); }
+.review-card::before { content: '“'; position: absolute; right: 18px; top: -22px; color: rgba(0,240,255,.08); font: 400 170px/.8 var(--font-bebas-neue,sans-serif); pointer-events: none; }
+.review-card:hover { transform: translateY(-6px); border-color: rgba(0,240,255,.25); background: linear-gradient(145deg,rgba(0,240,255,.035),rgba(255,255,255,.008)); }
 .review-card:nth-child(2):hover { transform: translateY(42px); }
 .review-card:nth-child(3):hover { transform: translateY(-28px); }
 .review-stars { position: relative; z-index: 1; display: flex; gap: 4px; color: var(--wob-accent); }

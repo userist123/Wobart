@@ -11,7 +11,7 @@ const FINISAJE = [
   { label: 'Matte', color: '#2d2d2d', border: '#555' },
   { label: 'Satin', color: '#3a3a3a', border: '#666' },
   { label: 'Crom', color: '#a0a0a0', border: '#ccc' },
-  { label: 'Color-Shift', color: 'linear-gradient(135deg,#9B00FF,#00F5FF,#E8FF00)', border: '#E8FF00' },
+  { label: 'Color-Shift', color: 'linear-gradient(135deg,#9B00FF,#00F5FF,#00F0FF)', border: '#00F0FF' },
 ]
 const BAZA: Record<string, number> = { 'Wrap Complet': 2800, PPF: 2000, 'Wrap Parțial': 1200, Accente: 500 }
 const MULT: Record<string, number> = { Gloss: 1, Matte: 1.05, Satin: 1.1, Crom: 1.35, 'Color-Shift': 1.5 }

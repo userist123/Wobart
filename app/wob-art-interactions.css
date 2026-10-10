@@ -21,13 +21,13 @@
 .service-row, .process-row { cursor: default; }
 .portfolio-card { cursor: pointer; }
 .portfolio-card:active { transform: translateY(-2px) scale(.998); }
-.service-row:focus-within, .process-row:focus-within { outline: 1px solid rgba(232,255,0,.3); outline-offset: 5px; }
+.service-row:focus-within, .process-row:focus-within { outline: 1px solid rgba(0,240,255,.3); outline-offset: 5px; }
 
 /* Form controls */
 .quote-choice, .choice, .finish-choice {
   transition: border-color .3s ease, background-color .3s ease, transform .35s var(--wob-interact-ease), box-shadow .35s ease;
 }
-.quote-choice:hover, .choice:hover, .finish-choice:hover { transform: translateY(-1px); border-color: rgba(232,255,0,.32); }
+.quote-choice:hover, .choice:hover, .finish-choice:hover { transform: translateY(-1px); border-color: rgba(0,240,255,.32); }
 .quote-choice:has(input:checked), .choice:has(input:checked), .finish-choice:has(input:checked) {
   box-shadow: inset 3px 0 0 var(--wob-accent), 0 10px 30px rgba(0,0,0,.14);
 }
@@ -35,7 +35,7 @@
 
 input, textarea, select { transition: border-color .25s ease, background-color .25s ease, box-shadow .25s ease; }
 input:hover, textarea:hover, select:hover { border-color: rgba(255,255,255,.18); }
-input:focus, textarea:focus, select:focus { border-color: rgba(232,255,0,.45); box-shadow: 0 0 0 3px rgba(232,255,0,.055); }
+input:focus, textarea:focus, select:focus { border-color: rgba(0,240,255,.45); box-shadow: 0 0 0 3px rgba(0,240,255,.055); }
 
 /* Image surfaces */
 .service-stage, .before-after-card, .portfolio-card { contain: paint; }

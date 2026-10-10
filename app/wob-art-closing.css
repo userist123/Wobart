@@ -1,7 +1,7 @@
 /* WOB ART — closing conversion moment */
 
 .closing-cta-premium { position: relative; overflow: hidden; isolation: isolate; min-height: 680px; display: grid; align-items: center; background: #080808; border-top: 1px solid rgba(255,255,255,.08); border-bottom: 1px solid rgba(255,255,255,.08); }
-.closing-cta-premium::before { content: ''; position: absolute; inset: 0; z-index: -3; background: radial-gradient(circle at 72% 48%, rgba(232,255,0,.09), transparent 28%), linear-gradient(105deg, #080808 0 48%, rgba(232,255,0,.025) 100%); }
+.closing-cta-premium::before { content: ''; position: absolute; inset: 0; z-index: -3; background: radial-gradient(circle at 72% 48%, rgba(0,240,255,.09), transparent 28%), linear-gradient(105deg, #080808 0 48%, rgba(0,240,255,.025) 100%); }
 .closing-cta-premium::after { content: 'NEXT'; position: absolute; right: -3%; bottom: -8%; z-index: -2; color: rgba(255,255,255,.018); font: 400 clamp(240px,42vw,620px)/.68 var(--font-bebas-neue,sans-serif); pointer-events: none; }
 .closing-cta-gridline { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, transparent 0 9.9%, rgba(255,255,255,.045) 10%, transparent 10.1% 49.9%, rgba(255,255,255,.035) 50%, transparent 50.1% 89.9%, rgba(255,255,255,.045) 90%, transparent 90.1%), linear-gradient(0deg, transparent 0 24.9%, rgba(255,255,255,.025) 25%, transparent 25.1% 74.9%, rgba(255,255,255,.025) 75%, transparent 75.1%); pointer-events: none; }
 .closing-cta-inner { position: relative; min-height: 680px; display: grid; grid-template-columns: 100px minmax(0,1fr) 180px; align-items: center; gap: 34px; }
@@ -12,7 +12,7 @@
 .closing-cta-content .body-copy { max-width: 44ch; color: rgba(240,240,240,.52); }
 .closing-actions { display: flex; align-items: center; gap: 28px; margin-top: 34px; }
 .closing-cta-coordinate { align-self: end; display: grid; gap: 8px; padding-bottom: 48px; color: rgba(255,255,255,.2); font: 500 7px/1.25 var(--font-jetbrains-mono,monospace); letter-spacing: .13em; text-align: right; }
-.closing-cta-coordinate span:first-child { color: rgba(232,255,0,.6); }
+.closing-cta-coordinate span:first-child { color: rgba(0,240,255,.6); }
 .closing-mark { position: absolute; left: 9%; bottom: 30px; color: rgba(255,255,255,.06); font: 400 16px/1 var(--font-bebas-neue,sans-serif); letter-spacing: .3em; }
 
 @media (max-width: 900px) {

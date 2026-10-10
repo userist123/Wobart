@@ -5,49 +5,53 @@
 
 /* ─── WOB ART Design Tokens ─── */
 :root {
-  --bg:       #0A0A0A;
-  --surface:  #111111;
-  --accent:   #E8FF00;
-  --text:     #F0F0F0;
-  --muted:    #555555;
+  --bg:       #050505;
+  --surface:  #0F0F13;
+  --accent:   #00F0FF;
+  --text:     #FFFFFF;
+  --muted:    #71717A;
   --border:   rgba(255,255,255,0.07);
 
-  --background:           #0A0A0A;
+  --background:           #050505;
   --foreground:           #F0F0F0;
-  --card:                 #111111;
+  --card:                 #0F0F13;
   --card-foreground:      #F0F0F0;
-  --popover:              #111111;
+  --popover:              #0F0F13;
   --popover-foreground:   #F0F0F0;
-  --primary:              #E8FF00;
-  --primary-foreground:   #0A0A0A;
+  --primary:              #00F0FF;
+  --primary-foreground:   #050505;
   --secondary:            #1A1A1A;
   --secondary-foreground: #F0F0F0;
   --muted:                #111111;
   --muted-foreground:     #555555;
-  --accent:               #E8FF00;
+  --accent:               #00F0FF;
   --accent-foreground:    #0A0A0A;
   --destructive:          #FF3B30;
   --destructive-foreground: #F0F0F0;
   --border:               rgba(255,255,255,0.07);
   --input:                #1A1A1A;
-  --ring:                 #E8FF00;
+  --ring:                 #00F0FF;
   --radius:               0.375rem;
 
   --sidebar:                  #111111;
   --sidebar-foreground:       #F0F0F0;
-  --sidebar-primary:          #E8FF00;
+  --sidebar-primary:          #00F0FF;
   --sidebar-primary-foreground: #0A0A0A;
   --sidebar-accent:           #1A1A1A;
   --sidebar-accent-foreground: #F0F0F0;
   --sidebar-border:           rgba(255,255,255,0.07);
-  --sidebar-ring:             #E8FF00;
+  --sidebar-ring:             #00F0FF;
 }
 
 @theme inline {
-  --font-sans:    var(--font-dm-sans), 'DM Sans', sans-serif;
+  --font-sans:    var(--font-outfit), 'Outfit', sans-serif;
   --font-mono:    var(--font-jetbrains-mono), 'JetBrains Mono', monospace;
-  --font-display: var(--font-bebas-neue), 'Bebas Neue', sans-serif;
-  --font-label:   var(--font-barlow-condensed), 'Barlow Condensed', sans-serif;
+  --font-display: var(--font-unbounded), 'Unbounded', sans-serif;
+  --font-label:   var(--font-outfit), 'Outfit', sans-serif;
+  /* v1 aliases: every older rule that names a retired font resolves to the v2 font */
+  --font-bebas-neue: var(--font-unbounded), 'Unbounded', sans-serif;
+  --font-barlow-condensed: var(--font-outfit), 'Outfit', sans-serif;
+  --font-dm-sans: var(--font-outfit), 'Outfit', sans-serif;
 
   --color-background:           var(--background);
   --color-foreground:           var(--foreground);
@@ -134,12 +138,12 @@
 ::-webkit-scrollbar { width: 3px; }
 ::-webkit-scrollbar-track { background: #0A0A0A; }
 ::-webkit-scrollbar-thumb { background: #1A1A1A; border-radius: 2px; }
-::-webkit-scrollbar-thumb:hover { background: #E8FF00; }
+::-webkit-scrollbar-thumb:hover { background: var(--wob-accent); }
 
 /* ─── Selection ─── */
 ::selection {
-  background: rgba(232,255,0,0.18);
-  color: #E8FF00;
+  background: rgba(0,240,255,0.18);
+  color: var(--wob-accent);
 }
 
 /* ─── Lenis ─── */
@@ -182,15 +186,23 @@ body::after {
 
 /* ===== WOB ART Premium Experience Layer ===== */
 :root {
-  --wob-bg: #0a0a0a;
-  --wob-carbon: #111111;
-  --wob-text: #f0f0f0;
-  --wob-muted: #8a8a8a;
-  --wob-dim: #4c4c4c;
-  --wob-accent: #e8ff00;
+  --wob-bg: #050505;
+  --wob-carbon: #0f0f13;
+  --wob-glass: rgba(15,15,19,.55);
+  --wob-text: #ffffff;
+  --wob-muted: #a1a1aa;
+  --wob-dim: #71717a;
+  --wob-accent: #00f0ff;
+  --wob-accent-2: #bd00ff;
+  --wob-success: #00ffa3;
+  --wob-warning: #ffb000;
+  --wob-danger: #ff003c;
   --wob-line: rgba(255,255,255,.10);
   --wob-line-soft: rgba(255,255,255,.06);
-  --wob-max: 1440px;
+  --wob-glow: rgba(0,240,255,.2);
+  --r-panel: 20px;
+  --r-ctrl: 8px;
+  --wob-max: 1280px;
 }
 
 html { scroll-behavior: smooth; }
@@ -244,7 +256,7 @@ body::after { opacity: .018; }
 .hero-media { position: absolute; inset: 0; }
 .hero-image { transform: scale(1.02); filter: saturate(.82) contrast(1.08); }
 .hero-vignette { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,7,7,.88) 0%, rgba(7,7,7,.52) 43%, rgba(7,7,7,.12) 75%), linear-gradient(0deg, rgba(7,7,7,.97) 0%, transparent 56%); }
-.hero-scanline { position: absolute; inset: auto 0 22%; height: 1px; background: linear-gradient(90deg, transparent, rgba(232,255,0,.28), transparent); opacity: .6; }
+.hero-scanline { position: absolute; inset: auto 0 22%; height: 1px; background: linear-gradient(90deg, transparent, rgba(0,240,255,.28), transparent); opacity: .6; }
 .hero-inner { position: relative; z-index: 2; padding-top: 150px; padding-bottom: 78px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 48px; }
 .hero-copy { max-width: 1120px; }
 .hero-kicker { color: var(--wob-accent); }
@@ -306,7 +318,7 @@ body::after { opacity: .018; }
 .portfolio-card-3, .portfolio-card-5 { margin-top: 36px; }
 .portfolio-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 36%, rgba(0,0,0,.85)); opacity: .75; transition: opacity .35s ease; }
 .portfolio-card::after { content: ''; position: absolute; inset: 12px; border: 1px solid rgba(255,255,255,0); transition: border-color .3s ease; pointer-events: none; }
-.portfolio-card:hover::after { border-color: rgba(232,255,0,.5); }
+.portfolio-card:hover::after { border-color: rgba(0,240,255,.5); }
 .portfolio-card:hover .portfolio-overlay { opacity: .95; }
 .portfolio-card img { transition: transform .8s cubic-bezier(.2,.7,.2,1); }
 .portfolio-card:hover img { transform: scale(1.045); }
@@ -338,12 +350,12 @@ body::after { opacity: .018; }
 .estimator-controls fieldset { border: 0; margin: 0; padding: 0; }
 .choice-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 11px; }
 .choice, .finish-choice { border: 1px solid var(--wob-line); background: transparent; color: #7d7d7d; min-height: 48px; padding: 10px 12px; font-family: var(--font-label), sans-serif; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; text-align: left; transition: border-color .2s ease, color .2s ease, background .2s ease; }
-.choice:hover, .finish-choice:hover, .choice.is-active, .finish-choice.is-active { border-color: rgba(232,255,0,.65); color: var(--wob-accent); background: rgba(232,255,0,.04); }
+.choice:hover, .finish-choice:hover, .choice.is-active, .finish-choice.is-active { border-color: rgba(0,240,255,.65); color: var(--wob-accent); background: rgba(0,240,255,.04); }
 .finish-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 11px; }
 .finish-choice { display: inline-flex; align-items: center; gap: 9px; }
 .finish-choice span { width: 13px; height: 13px; border-radius: 50%; border: 1px solid; display: block; }
 .estimator-summary { position: relative; display: flex; flex-direction: column; justify-content: space-between; gap: 30px; padding: clamp(24px, 4vw, 42px); min-height: 520px; background: #0a0a0a; overflow: hidden; }
-.estimator-summary::before { content: ''; position: absolute; inset: auto -10% -28% -10%; height: 60%; background: radial-gradient(circle at center, rgba(232,255,0,.09), transparent 65%); pointer-events: none; }
+.estimator-summary::before { content: ''; position: absolute; inset: auto -10% -28% -10%; height: 60%; background: radial-gradient(circle at center, rgba(0,240,255,.09), transparent 65%); pointer-events: none; }
 .summary-top { position: relative; display: flex; justify-content: space-between; font-family: var(--font-mono), monospace; font-size: 9px; letter-spacing: .14em; color: #555; }
 .summary-label { display: block; margin-bottom: 8px; font-family: var(--font-label), sans-serif; font-size: 10px; letter-spacing: .15em; color: #666; text-transform: uppercase; }
 .summary-config { display: block; position: relative; font-family: var(--font-display), sans-serif; font-size: clamp(36px, 4.4vw, 65px); line-height: .9; font-weight: 400; }

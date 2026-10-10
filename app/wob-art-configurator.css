@@ -2,7 +2,7 @@
 .configurator-section{position:relative;overflow:hidden}
 .configurator-layout{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(300px,.8fr);gap:34px;align-items:stretch}
 .configurator-stage{position:relative;width:100%;min-width:0;aspect-ratio:16/10;min-height:0;max-height:72vh;overflow:hidden;background:repeating-linear-gradient(0deg,rgba(255,255,255,.04) 0 1px,transparent 1px 48px),repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 48px),radial-gradient(ellipse at 50% 55%,#101014 0%,#050506 100%);background-color:#050506;border:1px solid rgba(255,255,255,.1);isolation:isolate;transition:box-shadow .15s ease}
-.configurator-stage:hover{box-shadow:inset 0 0 80px rgba(232,255,0,.06)}
+.configurator-stage:hover{box-shadow:inset 0 0 80px rgba(0,240,255,.06)}
 .configurator-stage canvas{display:block;width:100%;height:100%;touch-action:pan-y}
 .configurator-stage>div:not(.configurator-tint){position:absolute;inset:0}
 .configurator-poster{object-fit:cover;filter:saturate(.7) contrast(1.05)}

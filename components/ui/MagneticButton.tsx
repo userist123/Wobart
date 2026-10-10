@@ -13,13 +13,13 @@ interface MagneticButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export function MagneticButton({ children, variant = 'accent', size = 'md', className, href, ...props }: MagneticButtonProps) {
   const ref = useMagneticButton(0.35) as React.RefObject<HTMLButtonElement & HTMLAnchorElement>
-  const base = 'relative inline-flex items-center justify-center gap-2 font-label tracking-widest uppercase overflow-hidden transition-colors duration-300 select-none rounded-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#E8FF00] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0A0A0A]'
+  const base = 'relative inline-flex items-center justify-center gap-2 font-sans font-semibold tracking-[.16em] uppercase overflow-hidden transition-[background-color,color,border-color,box-shadow] duration-150 select-none rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#00F0FF] focus-visible:ring-offset-2 focus-visible:ring-offset-[#050505]'
   const variants = {
-    accent: 'bg-[#E8FF00] text-[#0A0A0A] hover:bg-white',
-    ghost: 'bg-transparent text-[#F0F0F0] border border-white/20 hover:border-[#E8FF00] hover:text-[#E8FF00]',
-    outline: 'bg-transparent text-[#E8FF00] border border-[#E8FF00] hover:bg-[#E8FF00] hover:text-[#0A0A0A]',
+    accent: 'bg-[#00F0FF] text-[#050505] shadow-[0_0_24px_rgba(0,240,255,.25)] hover:bg-white hover:shadow-[0_0_32px_rgba(0,240,255,.35)]',
+    ghost: 'bg-white/[.02] text-white border border-white/15 backdrop-blur-md hover:border-[#00F0FF]/60 hover:shadow-[0_0_15px_rgba(0,240,255,.2)]',
+    outline: 'bg-transparent text-[#00F0FF] border border-[#00F0FF]/60 hover:bg-[#00F0FF] hover:text-[#050505]',
   }
-  const sizes = { sm: 'px-5 py-2.5 text-[11px]', md: 'px-7 py-3.5 text-xs', lg: 'px-8 sm:px-10 py-4 sm:py-5 text-sm' }
+  const sizes = { sm: 'h-10 px-5 text-[11px]', md: 'h-12 px-7 text-xs', lg: 'h-12 sm:h-14 px-8 sm:px-10 text-[13px]' }
 
   if (href) {
     const anchorProps = props as AnchorHTMLAttributes<HTMLAnchorElement>

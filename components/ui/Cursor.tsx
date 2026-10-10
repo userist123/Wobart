@@ -40,7 +40,7 @@ export function Cursor() {
       label.textContent = ctx
       ring.style.width = '72px'
       ring.style.height = '72px'
-      if (ctx) ring.style.background = 'rgba(232,255,0,0.12)'
+      if (ctx) ring.style.background = 'rgba(0,240,255,0.12)'
     }
 
     const onLeave = () => {
@@ -72,14 +72,14 @@ export function Cursor() {
     <>
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 z-[9999] w-[6px] h-[6px] rounded-full bg-[#E8FF00] pointer-events-none will-change-transform hidden md:block"
+        className="fixed top-0 left-0 z-[9999] w-[6px] h-[6px] rounded-full bg-[#00F0FF] pointer-events-none will-change-transform hidden md:block"
       />
       <div
         ref={ringRef}
         className="fixed top-0 left-0 z-[9998] w-[36px] h-[36px] rounded-full border border-white/20 bg-white/8 pointer-events-none will-change-transform transition-[width,height,background] duration-200 flex items-center justify-center hidden md:flex"
         style={{ background: 'rgba(255,255,255,0.08)' }}
       >
-        <span ref={labelRef} className="text-[9px] font-label tracking-widest text-[#E8FF00] uppercase" />
+        <span ref={labelRef} className="text-[9px] font-label tracking-widest text-[#00F0FF] uppercase" />
       </div>
     </>
   )

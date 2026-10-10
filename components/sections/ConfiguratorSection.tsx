@@ -33,7 +33,7 @@ const FALLBACK_BODY = 'Schimbă culoarea și finisajul pe un model generic ca s�
 
 function swatchBackground(hex: string, finish: WrapFinish): string {
   if (finish === 'chrome') return `linear-gradient(135deg, #ffffff 0%, ${hex} 38%, #3a3a3a 62%, #f2f2f2 100%)`
-  if (finish === 'color-shift') return `conic-gradient(from 200deg, ${hex}, #00F5FF, #E8FF00, ${hex})`
+  if (finish === 'color-shift') return `conic-gradient(from 200deg, ${hex}, #00F5FF, #00F0FF, ${hex})`
   return hex
 }
 

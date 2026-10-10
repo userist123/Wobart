@@ -49,7 +49,7 @@ export function TrustBar() {
             const suffix = match?.[2]?.trim() ?? ''
             return (
               <div key={`${item}-${index}`} className="flex flex-col items-center text-center px-4 md:px-8 py-4">
-                <div className="font-display text-[clamp(44px,6vw,72px)] leading-none text-[#E8FF00]">
+                <div className="font-display text-[clamp(44px,6vw,72px)] leading-none text-[#00F0FF]">
                   {target !== null ? <CountUp target={target} suffix={suffix} /> : item}
                 </div>
               </div>
