@@ -70,7 +70,7 @@ function subscribeReduced(cb: () => void) {
 const getReduced = () => window.matchMedia(REDUCED_QUERY).matches
 const getReducedServer = () => false
 
-function useReducedMotion() {
+export function useReducedMotion() {
   return useSyncExternalStore(subscribeReduced, getReduced, getReducedServer)
 }
 
@@ -82,10 +82,10 @@ const PAINT_NAME = /^(Wrap|Paint )/
 const TARGET_LENGTH = 4.5
 const MODEL_URL = '/models/wob-car.glb'
 const ENTRANCE_DAMP = 5
-const HDR_URL = '/hdri/studio_small_09_1k.hdr'
+export const HDR_URL = '/hdri/studio_small_09_1k.hdr'
 const TARGET_Y = 0.5
 
-function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) {
+export function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) {
   const target = useMemo(() => buildTarget(color.hex, color.finish), [color.hex, color.finish])
   const { scene } = useGLTF(MODEL_URL, false, true)
 
@@ -176,7 +176,7 @@ function Car({ color, reduced }: { color: WrapColorContent; reduced: boolean }) 
 
 useGLTF.preload(MODEL_URL, false, true)
 
-function Effects() {
+export function Effects() {
   const capabilities = useThree((s) => s.gl.capabilities)
   const [enabled] = useState(() => {
     const smallHiDpi = window.devicePixelRatio > 2 && window.innerWidth < 1100
