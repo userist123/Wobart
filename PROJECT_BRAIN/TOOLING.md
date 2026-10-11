@@ -1,7 +1,7 @@
 # Tooling — where each step runs (inventory 2026-10-10)
 
-## Marius-PC (Windows 11 Pro, 32 GB RAM, RTX 5060 Laptop 4 GB + Intel UHD; C: 15 GB free, D: 276 GB free)
-Reached through Desktop Commander (device `Marius-PC`). PowerShell is the default shell. Install on **D:**, C: is nearly full.
+## LAB-PC (Windows 11 Pro, 32 GB RAM, RTX 5060 Laptop 4 GB + Intel UHD; C: 15 GB free, D: 276 GB free)
+Reached through Desktop Commander (device `LAB-PC`). PowerShell is the default shell. Install on **D:**, C: is nearly full.
 
 | Tool | Path / state | Used for |
 |---|---|---|
@@ -12,7 +12,7 @@ Reached through Desktop Commander (device `Marius-PC`). PowerShell is the defaul
 | Ollama 0.40.2 | running on 127.0.0.1:11434 | free local tier: qwen3:30b-a3b, qwen2.5-coder:7b/3b, llama3.1:8b, mistral:7b, qwen2.5:7b, nomic-embed-text |
 | Node 24.13, pnpm, Python 3.14 (mcp 1.30, pytest, PyYAML, numpy, pillow), git, gh (logged in as userist123), vercel CLI, wsl | present | build, tests, deploy |
 | Wobart checkout | `D:\Projects\Wobart` on `ccr-a57d8bba-5jt0rc` | model exports are committed from here |
-| Vault checkouts | `C:\Users\Marius\Projects\AI_Memory_Vault_CODEX_READY` (main, behind origin); `C:\Users\Marius\AI_Memory_Vault_CODEX_READY` has a **broken HEAD**; a third copy sits inside `LogAnalyzer.UI` | keep only the `Projects` one |
+| Vault checkouts | `C:\Users\user\Projects\AI_Memory_Vault_CODEX_READY` (main, behind origin); `C:\Users\user\AI_Memory_Vault_CODEX_READY` has a **broken HEAD**; a third copy sits inside `LogAnalyzer.UI` | keep only the `Projects` one |
 | Blocked by Desktop Commander policy | `reg`, `net`, `sc`, `netsh`, `runas`, `shutdown`, disk tools | nothing here needs them |
 
 ## Cloud session (claude.ai/code container)
